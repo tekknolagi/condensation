@@ -1,6 +1,11 @@
 class File
   # return something
   # array of chunk objects with hashes
+
+
+  #notes: 
+  # => we can just pass the file instead of opening it here again
+  # => prefix vs. fn - we should figure out how those two relate; we may not need fn here
   def chunk fn, prefix, chunksize = 4_194_304 # 4MB
     File.open(fn, 'r') do |file|
       until file.eof?
