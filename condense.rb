@@ -50,12 +50,13 @@ class Condense
   #Handler for uploading files. Returns true if the file upload worked, false if it failed at any point along the way.
   #Also handles chunking
   def file_put fn
+    prefix = Digest::SHA1.hexdigest(File.open(fn, "rb").read)
     if not fn
       puts "There was an error: the fn was nil"
       return false
     end
 
-    if @config.db["fn2ref"].has_key? fn
+    if @config.db["fn2ref"].has_key? prefix
       puts "There was an error: this file name already exists"
       return false
     end
@@ -76,38 +77,26 @@ class Condense
     end
 
     file = File.open(fn, "rb")
-    prefix = Digest::SHA1.hexdigest file.read
-    file.rewind
 
     shas = []
     continuing = true
     while (most_filled_cloud = get_most_filled_cloud(file_size)) && continuing
-      #create individual chunks here: call a function get_smallest_amt_left
-      #that returns the smallest amount left among all of the databases;
-      #then call a function create_chunk that actually splits the file into parts
-      # based on the get_smallest_amt_left return as input
-      #When do you create .each_chunk
-
       counter = 0
       while counter * 1024**2 < most_filled_cloud[1]
-        chunk = file.make_chunk(1024**2)
+        chunk = file.make_chunk(prefix, 1024**2)
         if not chunk
           continuing = false
           break
         end
         @services[most_filled_cloud[0]].file_put File.open(chunk[:fn], 'rb')
+        File.unlink(chunk[:fn])
         @config.db["chunk2ref"][chunk[:sha1]] = most_filled_cloud[0]
         shas.push chunk[:sha1]
         counter += 1
       end
     end
 
-    #NOTE: Made this different from using the prefix as vector. User will never search for files by prefix, but will by filename. The solution is to
-    #add function that checks to make sure filename is unique, and prevents user otherwise (see above)
-
-    #Write JSON file data to a file stored somewhere
-    sha1 = Digest::SHA1.hexdigest(file.read)
-    @config.db["fn2ref"][sha1] = {
+    @config.db["fn2ref"][prefix] = {
       :fn => fn.split('/').join('!'),
       :chunks => shas
     }
@@ -178,11 +167,5 @@ class Condense
     else
       return min_size
     end
-  end
-
-
-  def get_smallest_amount_left
-    #cloud_usage_list = get_cloud_usage
-    #min_size =
   end
 end
