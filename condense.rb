@@ -43,15 +43,19 @@ class Condense
 
     file = File.open(fn)
 
-    # replace fn with prefix
+    # create prefix (sha1 hash) from all of filedata
     # store fn prefix relationship in JSON
 
     most_filled_cloud = get_most_filled_cloud file_size
     if not most_filled_cloud
       chunked_file_list = file.chunk(prefix)
-      chunking_handler chunked_file_list       #Call chunking stuff on file that returns the list of chunks (which are themselves files)
+      if not chunking_handler chunked_file_list #Call chunking stuff on file that returns the list of chunks (which are themselves files); also edit json for chunk table
+        puts "There was a critical error"
+        return false      
     end
     Object.const_get(most_filled_cloud).file_put fn, file
+
+    file.close
     return true
   end
 
@@ -103,6 +107,16 @@ class Condense
     else
       return min_size
     end
+  end
+
+  #This function assists the main uploader handler by taking the list of chunks produced for too-large files
+  # and storing them in various clouds using get_most_filled_cloud
+  def chunking_handler(list_of_chunks)
+    list_of_chunks.each { |chunk| 
+      most_filled_cloud = get_most_filled_cloud chunk.size
+                                            #Not sure how to get filename of a file thats already instantiated
+      Object.const_get(most_filled_cloud).file_put chunk.basename, chunk
+    }
   end
 
   # puts DropboxService.get_token
