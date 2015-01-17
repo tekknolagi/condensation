@@ -13,7 +13,7 @@ OptionParser.new do |opts|
   opts.version = "0.0.0"
 
   opts.on("-c", "--configure", "Sign into your services.") do
-    puts app.configure
+    app.configure
   end
 
   opts.on("-l", "--list", "Returns list of files in the cloud.") do
