@@ -3,6 +3,14 @@ Condensation
 
 Condensation allows for maximisation of cloud storage capabilities by combining several popular cloud storage platforms, with the ability to distribute large files across platforms when needed.
 
+##App structure:
+
+Condensation keeps a JSON database under `~/.condensation/db.json`, along with a database of API tokens for various services under `~/.condensation/api.json`.
+
+...
+
+(gotta work on this documentation)
+
 ##Features:
 
 * Runs locally on a user's machine
