@@ -45,7 +45,8 @@ class Condense
     file = File.open(fn)
 
     # 'prefix' is the hexdigest SHA-1 hash of the filename 'fn'
-    prefix = Digest::SHA1.hexdigest fn
+    content = File.open(fn, "rb").read()
+    prefix = Digest::SHA1.hexdigest content
     
     file_properties = Hash.new
 
