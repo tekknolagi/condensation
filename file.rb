@@ -1,4 +1,6 @@
 class File
+  # return something
+  # array of chunk objects with hashes
   def chunk fn, prefix, chunksize = 4_194_304 # 4MB
     File.open(fn, 'r') do |file|
       until file.eof?
