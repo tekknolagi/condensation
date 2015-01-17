@@ -1,6 +1,7 @@
 require './file'
 require './config'
 require './provider'
+require 'digest.sha1'
 
 require 'json'
 
@@ -42,9 +43,11 @@ class Condense
     end
 
     file = File.open(fn)
-
-    # replace fn with prefix
-    # store fn prefix relationship in JSON
+    
+    # 'prefix' is the hexdigest SHA-1 hash of the filename 'fn'
+    prefix = Digest::SHA1.hexdigest fn
+    
+    # *************** store fn prefix relationship in JSON
 
     most_filled_cloud = get_most_filled_cloud file_size
     if not most_filled_cloud
