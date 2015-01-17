@@ -11,7 +11,7 @@ class GoogleService < Provider
   parent_id = "SOME GOOGLE ID FOR APPS FOLDER (get at startup or save in json on setup)"
   # There are some issues with trying to split this up into a proper client-server for client auth
   # See this: https://developers.google.com/drive/web/quickstart/quickstart-ruby
-  def self.get_token
+  def get_token
     # POST request to auth server to get JSON of api keys
     secrets = Net::HTTP.get(URI.parse(AUTH_SERVER+'secrets'))
     api_secrets = JSON.parse(secrets)
@@ -32,7 +32,7 @@ class GoogleService < Provider
     @@access_token = parsed_json['access_token']
   end
 
-  def self.file_get fn
+  def file_get fn
     file_properties = json_file_data[fn]
     google_id = file_properties["id"]
 
@@ -61,7 +61,7 @@ class GoogleService < Provider
     end
   end
 
-  def self.file_put file
+  def file_put file
     drive = client.discovered_api('drive', 'v2')
     file = drive.files.insert.request_schema.new({
       #metadata for later
@@ -87,7 +87,7 @@ class GoogleService < Provider
       return false
   end
 
-  def self.space_free
+  def space_free
     drive = client.discovered_api('drive', 'v2')
     result = client.execute(:api_method => drive.about.get)
     if result.status == 200
