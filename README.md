@@ -25,7 +25,7 @@ Make a folder called `~/.condensation`, then add `api.json` and `db.json` as fol
 }
 ```
 
-Now run `ruby app.c --configure` to add the accounts for `dropbox` and `onedrive`.
+Now run `ruby app.rb --configure` to add the accounts for `dropbox` and `onedrive`.
 
 Finally, try uploading something! :)
 
