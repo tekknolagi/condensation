@@ -1,4 +1,4 @@
-class Google
+module Google
   def get_token
   end
 
@@ -9,5 +9,8 @@ class Google
   end
 
   def file_list
+  end
+
+  def space_free
   end
 end

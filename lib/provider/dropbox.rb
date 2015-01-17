@@ -1,4 +1,4 @@
-class Dropbox
+module Dropbox
   def get_token
   end
 
@@ -9,5 +9,8 @@ class Dropbox
   end
 
   def file_list
+  end
+
+  def space_free
   end
 end
