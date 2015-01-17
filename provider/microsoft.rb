@@ -31,12 +31,19 @@ class OnedriveService < Provider
   end
 
   def self.file_get fn
+    # Assumes fn is a basename
 
+    # Retrieve onedrive file ID from db
+    fid = json_file_data[fn][:id]
+
+    blob = Net::HTTP.get(URI("https://apis.live.net/v5.0/#{fid}/content"), {'access_token' => @access_token})
+    return blob # blob is a binary plaintext string of the file contents - this may need to be wrapped into some sort of object?    
   end
 
   def self.file_put file
+    # downsize_photo_uploads prevents OneDrive from resizing images
     response = Net::HTTP.put(URI("https://apis.live.net/v5.0/me/skydrive/files"+file.basename), 
-                            { 'access_token' => @access_token }, 
+                            { 'access_token' => @access_token, 'downsize_photo_uploads' => 'false' }, 
                             file.read)    
 
     # Associate filename with its onedrive id
