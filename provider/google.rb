@@ -12,10 +12,11 @@ class GoogleService < Provider
   # There are some issues with trying to split this up into a proper client-server for client auth
   # See this: https://developers.google.com/drive/web/quickstart/quickstart-ruby
   def self.get_token
-    # POST request to auth server to get authorization url
-    authorize_url_json = Net::HTTP.post_form(URI.parse(AUTH_URL+'authorize'))
-    parsed_json = JSON.parse(authorize_url_json)
-    authorize_url = parsed_json['authorize_url']
+    # POST request to auth server to get JSON of api keys
+    secrets = Net::HTTP.get(URI.parse(AUTH_SERVER+'secrets'))
+    api_secrets = JSON.parse(secrets)
+    api_key = api_secrets['key']
+    api_secret = api_secrets['secret']
 
     # Have the user sign in and authorize this app
     puts 'Please authorise Condensation for your Google account:'
