@@ -5,15 +5,14 @@ require 'json'
 class Provider ; end
 
 class OnedriveService < Provider
-
   AUTH_URL = 'http://condensation-auth.herokuapps.com/onedrive'
   attr_accessor :access_token
 
-  def self.get_token
+  def get_token
     # Request authorization url from auth server
     response = Net::HTTP.get(URI("#{AUTH_URL}/build_url"))
     authorize_url = response['authorize_url']
-    
+
     # Have the user sign in and authorize this app
     puts 'Please authorise Condensation for your Windows Live account:'
     puts '1. Go to: ' + authorize_url
@@ -30,21 +29,21 @@ class OnedriveService < Provider
     JSON.parse response # return parsed JSON object
   end
 
-  def self.file_get fn
+  def file_get fn
     # Assumes fn is a basename
 
     # Retrieve onedrive file ID from db
     fid = json_file_data[fn][:id]
 
     blob = Net::HTTP.get(URI("https://apis.live.net/v5.0/#{fid}/content"), {'access_token' => @access_token})
-    return blob # blob is a binary plaintext string of the file contents - this may need to be wrapped into some sort of object?    
+    return blob # blob is a binary plaintext string of the file contents - this may need to be wrapped into some sort of object?
   end
 
-  def self.file_put file
+  def file_put file
     # downsize_photo_uploads prevents OneDrive from resizing images
-    response = Net::HTTP.put(URI("https://apis.live.net/v5.0/me/skydrive/files"+file.basename), 
-                            { 'access_token' => @access_token, 'downsize_photo_uploads' => 'false' }, 
-                            file.read)    
+    response = Net::HTTP.put(URI("https://apis.live.net/v5.0/me/skydrive/files"+file.basename),
+                            { 'access_token' => @access_token, 'downsize_photo_uploads' => 'false' },
+                            file.read)
 
     # Associate filename with its onedrive id
     json_file_data[file.basename][:id] = response['id']
@@ -52,7 +51,7 @@ class OnedriveService < Provider
     return response['id']
   end
 
-  def self.space_free
+  def space_free
     response = Net::HTTP.get(URI("https://apis.live.net/v5.0/me/skydrive/quota"), {'access_token' => @access_token})
 
     response['available'].to_f() / (1024**2) # Return available storage in megabytes
