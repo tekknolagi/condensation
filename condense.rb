@@ -47,18 +47,33 @@ class Condense
     # 'prefix' is the hexdigest SHA-1 hash of the filename 'fn'
     prefix = Digest::SHA1.hexdigest fn
     
-    # *************** store fn prefix relationship in JSON
+    file_properties = Hash.new
 
     most_filled_cloud = get_most_filled_cloud file_size
     if not most_filled_cloud
       chunked_file_list = file.chunk(prefix)
-      if not chunking_handler chunked_file_list #Call chunking stuff on file that returns the list of chunks (which are themselves files); also edit json for chunk table
+      chunk_table = chunking_handler chunked_file_list 
+      if not chunk_table
         puts "There was a critical error"
-        return false      
+        return false
+      else
+        file_properties[:chunk_table] = chunk_table
+      end
     end
+
+    #would need to pass the database id at some point, after the API code return (at least, for things like drive) 
+    file_properties[:file_name] = fn
+    file_properties[:cloud_name] = most_filled_cloud 
+
+    #no chunking needed, stores only database and filename tagged by the sha_1 'id'
+    file_obj_for_JSON = { prefix => file_properties}
+
     Object.const_get(most_filled_cloud).file_put fn, file
 
     file.close
+
+    #write to json file here
+    
     return true
   end
 
@@ -115,11 +130,20 @@ class Condense
   #This function assists the main uploader handler by taking the list of chunks produced for too-large files
   # and storing them in various clouds using get_most_filled_cloud
   def chunking_handler(list_of_chunks)
+
+    chunk_table = Hash.new
+
     list_of_chunks.each { |chunk| 
       most_filled_cloud = get_most_filled_cloud chunk.size
-                                            #Not sure how to get filename of a file thats already instantiated
+
+      #Not sure how to get filename of a file thats already instantiated <THIS NEEDS CHECKING
+
+      chunk_table[:chunk.basename] = chunk
       Object.const_get(most_filled_cloud).file_put chunk.basename, chunk
     }
+
+    return chunk_table
+
   end
 
   # puts DropboxService.get_token
