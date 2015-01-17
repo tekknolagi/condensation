@@ -33,7 +33,18 @@ def upload_to_cloud_handler(file_path)
 		return false
 	end
 
+	cloud_list = condense.get_clouds
+
+	total_space = 0
+
+	cloud_list.each{ |name| total_space += Object.const_get(name).space_free}
+
 	file_size = File.size(file_path)
+
+	if file_size > total_space
+		puts "This file was too large"
+		return false
+	end
 
 	file = File.open(file_path)
 
