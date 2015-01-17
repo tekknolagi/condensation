@@ -1,7 +1,9 @@
-require 'condense/file'
-require 'condense/provider/dropbox'
+require './file'
+require './provider'
 
-class Condense
+module Condense
+  puts DropboxService.get_token
+  puts DropboxService.file_put File.open('file.rb')
 end
 
 
