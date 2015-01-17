@@ -67,7 +67,7 @@ class GoogleService < Provider
     if parent_id
       file.parents = [{'id' => parent_id}]
     end
-    media = Google::APIClient::UploadIO.new(file_name, "application/octet-stream") 
+    media = Google::APIClient::UploadIO.new(file_name, "application/octet-stream")
     result = client.execute(
       :api_method => drive.files.insert,
       :body_object => file,
@@ -95,4 +95,5 @@ class GoogleService < Provider
       return false
     end
   end
+end
 end

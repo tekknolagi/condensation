@@ -5,21 +5,27 @@ require './condense'
 
 require 'optparse'
 
+app = Condense.new
+
 OptionParser.new do |opts|
   opts.banner += " [arguments...]"
   opts.separator "This will parse commands to be used by Condensation."
   opts.version = "0.0.0"
 
+  opts.on("-c", "--configure", "Sign into your services.") do
+    puts app.configure
+  end
+
   opts.on("-l", "--list", "Returns list of files in the cloud.") do
-    puts Condense.file_list
+    puts app.file_list
   end
 
   opts.on("-u", "--upload FILEPATH", "Uploads the file at FILEPATH.") do |args|
-    puts Condense.file_put args
+    puts app.file_put args
   end
 
   opts.on("-d", "--download FILENAME", "Downloads the file named FILENAME.") do |args|
-    puts Condense.file_get args
+    puts app.file_get args
   end
 
   begin
@@ -31,3 +37,5 @@ OptionParser.new do |opts|
     exit 1
   end
 end
+
+app.persist!

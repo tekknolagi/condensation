@@ -1,3 +1,3 @@
 require './provider/dropbox'
-require './provider/google'
+#require './provider/google'
 
