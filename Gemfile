@@ -1,5 +1,10 @@
-ruby '2.1.1'
+ruby '2.2.0'
 
-gem 'dropbox-sdk'
-gem 'google-api-client'
-gem 'launchy'
+group :dropbox do
+  gem 'dropbox-sdk'
+end
+
+group :google do
+  gem 'google-api-client'
+  gem 'launchy'
+end
