@@ -67,7 +67,7 @@ class Condense
 
     most_filled_cloud = get_most_filled_cloud file_size
     if not most_filled_cloud
-      chunked_file_list = file.chunk(prefix)
+      chunked_file_list = file.chunk(fn, prefix)
       chunk_table = chunking_handler chunked_file_list 
       if not chunk_table
         puts "There was a critical error"
@@ -143,7 +143,7 @@ class Condense
 
   #returns the name (string) of the cloud that is most filled BUT STILL FITS THE FILE_SIZE
   #calls chunking if needed
-  def get_most_filled_cloud(file_size)
+  def get_most_filled_cloud file_size
     cloud_usage_list = Condense.get_cloud_usage
     min_size = cloud_usage_list.select do |name, size|
       size > file_size
@@ -160,14 +160,14 @@ class Condense
 
   #This function assists the main uploader handler by taking the list of chunks produced for too-large files
   # and storing them in various clouds using get_most_filled_cloud
-  def chunking_handler(list_of_chunks)
+  def chunking_handler list_of_chunks
 
     chunk_table = Hash.new
 
     list_of_chunks.each { |chunk| 
       most_filled_cloud = get_most_filled_cloud chunk.size
 
-      #Not sure how to get filename of a file thats already instantiated <THIS NEEDS CHECKING
+      #Not sure how to get filename of a file thats already instantiated <<<<THIS NEEDS CHECKING
 
       chunk_table[:chunk.basename] = chunk
       Object.const_get(most_filled_cloud).file_put chunk.basename, chunk
