@@ -6,30 +6,32 @@ require 'google/api_client'
 class Provider; end
 
 class GoogleService < Provider
-  AUTH_SERVER = 'http://condensation-auth.herokuapp.com/google/'
+  AUTH_SERVER = 'http://condensation-auth.herokuapp.com/google'
   OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
   REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
-  # Create a new API client & load the Google Drive API
-  @client = Google::APIClient.new
-  @drive = client.discovered_api('drive', 'v2')
+  attr_accessor :access_token
 
   # There are some issues with trying to split this up into a proper client-server for client auth
   # See this: https://developers.google.com/drive/web/quickstart/quickstart-ruby
   def get_token
+    # Create a new API client & load the Google Drive API
+    @client = Google::APIClient.new({ :application_name => 'Condensation', :application_version => '0.0.0' })
+    @drive = @client.discovered_api('drive', 'v2')
+
     # POST request to auth server to get JSON of api keys
-    secrets = Net::HTTP.get(URI.parse(AUTH_SERVER+'secrets'))
+    secrets = Net::HTTP.get(URI.parse("#{AUTH_SERVER}/secrets"))
     api_secrets = JSON.parse(secrets)
     client_id = api_secrets['key']
     client_secret = api_secrets['secret']
 
     # Request authorization
-    client.authorization.client_id = client_id
-    client.authorization.client_secret = client_secret
-    client.authorization.scope = OAUTH_SCOPE
-    client.authorization.redirect_uri = REDIRECT_URI
+    @client.authorization.client_id = client_id
+    @client.authorization.client_secret = client_secret
+    @client.authorization.scope = OAUTH_SCOPE
+    @client.authorization.redirect_uri = REDIRECT_URI
 
-    authorize_url = client.authorization.authorization_uri
+    authorize_url = @client.authorization.authorization_uri
 
     # Have the user sign in and authorize this app
     Launchy.open(authorize_url)
@@ -38,14 +40,14 @@ class GoogleService < Provider
     puts '2. Click "Allow" (you might have to log in first)'
     puts '3. Copy the authorization code'
     print 'Enter the authorization code here: '
-    client.authorization.code = gets.chomp
-    client.authorization.fetch_access_token!
+    @client.authorization.code = gets.chomp
+    @client.authorization.fetch_access_token!
 
     # At this point I believe the client is all set up (authenticated and whatnot)
     # To do is still: Figure out how we can avoid doing all this all over each time app.rb is run
   end
 
-  def create_client 
+  def create_client
     # Potential?
   end
 
