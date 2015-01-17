@@ -1,4 +1,6 @@
 require 'rubygems'
+require 'json'
+require 'launchy'
 require 'google/api_client'
 
 class Provider; end
