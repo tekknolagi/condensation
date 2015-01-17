@@ -5,7 +5,7 @@ require 'json'
 class Provider ; end
 
 class OnedriveService < Provider
-  AUTH_URL = 'http://condensation-auth.herokuapps.com/onedrive'
+  AUTH_URL = 'http://condensation-auth.herokuapp.com/onedrive'
   attr_accessor :access_token
 
   def get_token
