@@ -1,7 +1,8 @@
 require 'json'
 
 module Konfig
-  @@name = File.expand_path '~/.condensation/api.json'
+  @@path = '~/.condensation/api.json'
+  @@name = File.expand_path @@path
   attr_accessor :keys
 
   def self.exists?
@@ -13,5 +14,8 @@ module Konfig
   end
 
   def self.write
+    File.open(@@path) do |f|
+      f.write keys.to_json
+    end
   end
 end
