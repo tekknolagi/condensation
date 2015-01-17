@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'json'
 require 'launchy'
 require 'google/api_client'
@@ -15,22 +14,7 @@ class GoogleService < Provider
   # There are some issues with trying to split this up into a proper client-server for client auth
   # See this: https://developers.google.com/drive/web/quickstart/quickstart-ruby
   def get_token
-    # Create a new API client & load the Google Drive API
-    @client = Google::APIClient.new({ :application_name => 'Condensation', :application_version => '0.0.0' })
-    @drive = @client.discovered_api('drive', 'v2')
-
-    # POST request to auth server to get JSON of api keys
-    secrets = Net::HTTP.get(URI.parse("#{AUTH_SERVER}/secrets"))
-    api_secrets = JSON.parse(secrets)
-    client_id = api_secrets['key']
-    client_secret = api_secrets['secret']
-
-    # Request authorization
-    @client.authorization.client_id = client_id
-    @client.authorization.client_secret = client_secret
-    @client.authorization.scope = OAUTH_SCOPE
-    @client.authorization.redirect_uri = REDIRECT_URI
-
+    create_client
     authorize_url = @client.authorization.authorization_uri
 
     # Have the user sign in and authorize this app
@@ -48,21 +32,37 @@ class GoogleService < Provider
   end
 
   def create_client
-    # Potential?
+    # Create a new API client & load the Google Drive API
+    @client = Google::APIClient.new({ :application_name => 'Condensation', :application_version => '0.0.0' })
+    @drive = @client.discovered_api('drive', 'v2')
+
+    # POST request to auth server to get JSON of api keys
+    secrets = Net::HTTP.get(URI.parse("#{AUTH_SERVER}/secrets"))
+    api_secrets = JSON.parse(secrets)
+    client_id = api_secrets['key']
+    client_secret = api_secrets['secret']
+
+    # Request authorization
+    @client.authorization.client_id = client_id
+    @client.authorization.client_secret = client_secret
+    @client.authorization.scope = OAUTH_SCOPE
+    @client.authorization.redirect_uri = REDIRECT_URI
+    @client.authorization.access_token = @access_token if @access_token
   end
 
   def file_get fn
+    create_client
     file_properties = json_file_data[fn]
     google_id = file_properties["id"]
 
     #starts callback flow
-    result = client.execute(
+    result = @client.execute(
       :api_method => @drive.files.get,
       :parameters => { 'fileId' => file_id })
     if result.status == 200
       file = result.data
       if file.download_url
-        result = client.execute(:uri => file.download_url)
+        result = @client.execute(:uri => file.download_url)
         if result.status == 200
           return result.body
         else
@@ -80,7 +80,8 @@ class GoogleService < Provider
   end
 
   def file_put file
-    drive = client.discovered_api('drive', 'v2')
+    create_client
+    drive = @client.discovered_api('drive', 'v2')
     file = drive.files.insert.request_schema.new({
       #metadata for later
     })
@@ -89,7 +90,7 @@ class GoogleService < Provider
       file.parents = [{'id' => parent_id}]
     end
     media = Google::APIClient::UploadIO.new(file_name, "application/octet-stream")
-    result = client.execute(
+    result = @client.execute(
       :api_method => drive.files.insert,
       :body_object => file,
       :media => media,
@@ -107,8 +108,10 @@ class GoogleService < Provider
   end
 
   def space_free
-    drive = client.discovered_api('drive', 'v2')
-    result = client.execute(:api_method => drive.about.get)
+    create_client
+    p @client
+    drive = @client.discovered_api('drive', 'v2')
+    result = @client.execute(:api_method => drive.about.get)
     if result.status == 200
       about = result.data
       return about.quota_bytes_total - about.quota_bytes_used

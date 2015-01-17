@@ -9,3 +9,7 @@ group :google do
   gem 'google-api-client'
   gem 'launchy'
 end
+
+group :flickr do
+  gem 'flickraw'
+end

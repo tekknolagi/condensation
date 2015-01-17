@@ -1,35 +1,16 @@
-require 'dropbox_sdk'
+require 'flickraw'
 require 'net/http'
 require 'json'
 require 'launchy'
 
 class Provider; end
 
-class DropboxService < Provider
+class FlickrService < Provider
   AUTH_URL = 'http://condensation-auth.herokuapp.com/dropbox'
   attr_accessor :access_token
 
   def get_token
-    # POST request to auth server to get authorization url
-    authorize_url_json = Net::HTTP.post_form(URI("#{AUTH_URL}/authorize"), {})
-    parsed_json = JSON.parse(authorize_url_json.body)
-    authorize_url = parsed_json['authorize_url']
-
-    Launchy.open(URI(authorize_url))
-    # Have the user sign in and authorize this app
-    puts 'Please authorise Condensation for your Dropbox account:'
-    puts '1. Go to: ' + authorize_url
-    puts '2. Click "Allow" (you might have to log in first)'
-    puts '3. Copy the authorization code'
-    print 'Enter the authorization code here: '
-    code = gets.strip
-
-    # POST request to auth server to get client access token
-    access_token_json = Net::HTTP.post_form(URI("#{AUTH_URL}/api_token"), { 'code' => code })
-    parsed_json = JSON.parse(access_token_json.body)
-    @access_token = parsed_json['access_token']
-
-    @access_token
+    # @access_token
   end
 
   def file_get fn
