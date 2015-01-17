@@ -32,7 +32,7 @@ class Condense
 
   def configure
     @services.each do |svc, obj|
-      @config.keys[svc] = obj.get_token
+      @config.keys[svc] = obj.get_token if @config.keys[svc] == {}
     end
   end
 
