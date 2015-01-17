@@ -30,9 +30,13 @@ class Condense
     @config.write
   end
 
-  def configure
-    @services.each do |svc, obj|
-      @config.keys[svc] = obj.get_token if @config.keys[svc] == {}
+  def configure svc
+    if svc
+      @config.keys[svc] = @services[svc].get_token
+    else
+      @services.each do |svc, obj|
+        @config.keys[svc] = obj.get_token if @config.keys[svc] == {}
+      end
     end
   end
 
