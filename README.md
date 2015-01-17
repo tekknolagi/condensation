@@ -46,6 +46,6 @@ Condensation keeps a JSON database under `~/.condensation/db.json`, along with a
 ##Services supported:
 
 * Dropbox
-* Google Drive (not yet)
 * Microsoft OneDrive
+* Google Drive (not yet)
 * Box (not yet)
