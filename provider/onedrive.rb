@@ -21,7 +21,7 @@ class OnedriveService < Provider
     puts '2. Login to your Live account and click "Allow"'
     puts '3. Copy the authorization code'
     print 'Enter the authorization code here: '
-    code = gets.strip
+    code = gets.strip.gsub("\"","")
 
     # POST request to auth server to get client tokens
     response = Net::HTTP.post_form(URI("#{AUTH_URL}/api_token"), { 'code' => code })
