@@ -5,6 +5,12 @@ require 'digest/sha1'
 
 require 'json'
 
+
+#Do we want to create a 'master Hash' that loads on start up and basically puts all of the data from the json hash database into the app at the start? 
+#OR 
+#Do we want to constantly query the json database itself? 
+#That will affect how we write to JSON
+
 class Condense
   def self.file_list
   end
@@ -44,7 +50,6 @@ class Condense
 
     file = File.open(fn)
 
-    # 'prefix' is the hexdigest SHA-1 hash of the filename 'fn'
     content = File.open(fn, "rb").read()
     prefix = Digest::SHA1.hexdigest content
     
