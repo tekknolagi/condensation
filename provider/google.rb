@@ -7,29 +7,46 @@ class Provider; end
 
 class GoogleService < Provider
   AUTH_SERVER = 'http://condensation-auth.herokuapp.com/google/'
-  client = Google::APIClient.new
-  parent_id = "SOME GOOGLE ID FOR APPS FOLDER (get at startup or save in json on setup)"
+  OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
+  REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
+
+  # Create a new API client & load the Google Drive API
+  @client = Google::APIClient.new
+  @drive = client.discovered_api('drive', 'v2')
+
   # There are some issues with trying to split this up into a proper client-server for client auth
   # See this: https://developers.google.com/drive/web/quickstart/quickstart-ruby
   def get_token
     # POST request to auth server to get JSON of api keys
     secrets = Net::HTTP.get(URI.parse(AUTH_SERVER+'secrets'))
     api_secrets = JSON.parse(secrets)
-    api_key = api_secrets['key']
-    api_secret = api_secrets['secret']
+    client_id = api_secrets['key']
+    client_secret = api_secrets['secret']
+
+    # Request authorization
+    client.authorization.client_id = client_id
+    client.authorization.client_secret = client_secret
+    client.authorization.scope = OAUTH_SCOPE
+    client.authorization.redirect_uri = REDIRECT_URI
+
+    authorize_url = client.authorization.authorization_uri
 
     # Have the user sign in and authorize this app
+    Launchy.open(authorize_url)
     puts 'Please authorise Condensation for your Google account:'
     puts '1. Go to: ' + authorize_url
     puts '2. Click "Allow" (you might have to log in first)'
     puts '3. Copy the authorization code'
     print 'Enter the authorization code here: '
-    code = gets.strip
+    client.authorization.code = gets.chomp
+    client.authorization.fetch_access_token!
 
-    # POST request to auth server to get client access token
-    access_token_json = Net::HTTP.post_form(URI.parse(AUTH_URL+'api_token'), {'code' => code})
-    parsed_json = JSON.parse(access_token_json)
-    @@access_token = parsed_json['access_token']
+    # At this point I believe the client is all set up (authenticated and whatnot)
+    # To do is still: Figure out how we can avoid doing all this all over each time app.rb is run
+  end
+
+  def create_client 
+    # Potential?
   end
 
   def file_get fn
@@ -37,7 +54,6 @@ class GoogleService < Provider
     google_id = file_properties["id"]
 
     #starts callback flow
-    drive = client.discovered_api('drive', 'v2')
     result = client.execute(
       :api_method => @drive.files.get,
       :parameters => { 'fileId' => file_id })
@@ -85,6 +101,7 @@ class GoogleService < Provider
     else
       puts "There was an error inserting your file to drive"
       return false
+    end
   end
 
   def space_free
@@ -98,5 +115,4 @@ class GoogleService < Provider
       return false
     end
   end
-end
 end
