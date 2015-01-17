@@ -45,5 +45,15 @@ class DropboxService < Provider
   end
 
   def self.space_free
+    account_json = @@client.account_info()
+    account_parsed = JSON.parse(account_json)
+    quota_info = account_parsed['quota_info']
+
+    # Assuming this adds up to total storage used by the user
+    used_storage = quota_info['normal'].to_i() + quota_info['shared'].to_i() 
+    
+    bytes_free = quota_info['quota'].to_i() - used_storage 
+
+    bytes_free / 1048576.0 # return megabytes free (1024*1024)
   end
 end
