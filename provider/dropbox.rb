@@ -2,6 +2,7 @@ require 'dropbox_sdk'
 require 'net/http'
 require 'rubygems'
 require 'json'
+require 'launchy'
 
 class Provider; end
 
@@ -15,6 +16,7 @@ class DropboxService < Provider
     parsed_json = JSON.parse(authorize_url_json.body)
     authorize_url = parsed_json['authorize_url']
 
+    Launchy.open(URI(authorize_url))
     # Have the user sign in and authorize this app
     puts 'Please authorise Condensation for your Dropbox account:'
     puts '1. Go to: ' + authorize_url

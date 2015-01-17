@@ -1,6 +1,7 @@
 require 'net/http'
 require 'rubygems'
 require 'json'
+require 'launchy'
 
 class Provider ; end
 
@@ -10,10 +11,11 @@ class OnedriveService < Provider
 
   def get_token
     # Request authorization url from auth server
-    response = Net::HTTP.get(URI("#{AUTH_URL}/build_url"))
+    response = JSON.parse Net::HTTP.get(URI("#{AUTH_URL}/build_url"))
     authorize_url = response['authorize_url']
 
     # Have the user sign in and authorize this app
+    Launchy.open(URI(authorize_url))
     puts 'Please authorise Condensation for your Windows Live account:'
     puts '1. Go to: ' + authorize_url
     puts '2. Login to your Live account and click "Allow"'
@@ -23,10 +25,11 @@ class OnedriveService < Provider
 
     # POST request to auth server to get client tokens
     response = Net::HTTP.post_form(URI("#{AUTH_URL}/api_token"), { 'code' => code })
-    @access_token = response['access_token']
-    @authentication_token = response['authentication_token']
+    parsed_json = JSON.parse response.body
+    @access_token = parsed_json['access_token']
+    @authentication_token = parsed_json['authentication_token']
 
-    JSON.parse response # return parsed JSON object
+    return parsed_json # return parsed JSON object
   end
 
   def file_get fn
