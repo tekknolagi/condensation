@@ -1,26 +1,19 @@
+require 'digest/sha1'
+
 class File
-  # return something
-  # array of chunk objects with hashes
-
-
-  #notes: 
-  # => we can just pass the file instead of opening it here again
-  def chunk fn, prefix, chunksize = 4_194_304 # 4MB
-    File.open(fn, 'r') do |file|
-    chunk_list = Array.new
-      until file.eof?
-        # sample: f572d396fae9206628714fb2ce00f72e94f2258f_00001 (the sha1 is for file)
-        File.open("#{prefix}_#{"%05d"%(file.pos/chunksize)}", "w") do |file_out|
-        	# needs to return a list of chunks with their sha1's and refs
-        	File.open(file_out, "w") do |actual_file|
-        		chunk_list.push(file_out)
-        	end
-       #   file_out << file.read(chunksize)
-        end
-
-        return chunk_list
-        
-      end
+  def make_chunk size = 131_072 # 128KB
+    blob = read(size)
+    if not blob
+      return nil
     end
+
+    sha1 = Digest::SHA1.hexdigest blob
+    fn = "#{sha1}_%05s" % (pos/size.to_f).to_i
+
+    File.open(fn, 'w') do |f|
+      f.write blob
+    end
+
+    return { :fn => fn, :blob => blob, :sha1 => sha1 } #unless eof?
   end
 end
