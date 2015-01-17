@@ -9,10 +9,15 @@ require 'json'
 #Do we want to create a 'master Hash' that loads on start up and basically puts all of the data from the json hash database into the app at the start? 
 #OR 
 #Do we want to constantly query the json database itself? 
-#That will affect how we write to JSON
+#
+#That will affect how we write to JSON; I'm assuming we do the first, and edit a global hash called json_file_data that writes to a file when things change in it
 
 class Condense
   def self.file_list
+    json_file_data.each do |filename, properties|
+      puts "#{filename}-----"
+      puts properties
+    end
   end
 
   #get_clouds returns a list of clouds that are currently connected to the users files
@@ -27,6 +32,11 @@ class Condense
   def self.file_put fn
     if not fn
       puts "There was an error: the fn was nil"
+      return false
+    end
+
+    if json_file_data.has_key?(fn)
+      puts "There was an error: this file name already exists"
       return false
     end
 
@@ -68,17 +78,17 @@ class Condense
     end
 
     #would need to pass the database id at some point, after the API code return (at least, for things like drive) 
-    file_properties[:file_name] = fn
+    file_properties[:prefix] = prefix
     file_properties[:cloud_name] = most_filled_cloud 
 
-    #no chunking needed, stores only database and filename tagged by the sha_1 'id'
-    file_obj_for_JSON = { prefix => file_properties}
+    #NOTE: Made this different from using the prefix as vector. User will never search for files by prefix, but will by filename. The solution is to 
+    #add function that checks to make sure filename is unique, and prevents user otherwise (see above)
+    
+    json_file_data[:file_name] = fn
+
+    #Write JSON file data to a file stored somewhere
 
     Object.const_get(most_filled_cloud).file_put fn, file
-
-    file.close
-
-    #write to json file here
     
     return true
   end
@@ -97,8 +107,23 @@ class Condense
       return false
     end
 
-    file_cloud = get_cloud_of_file_from_fn fn #GET CLOUD OF FILE FROM NAME
-    file = Object.const_get(file_cloud).file_get fn
+    if not json_file_data.has_key?(fn)
+      puts "There was an error: the fn doesn't previously exists"
+      return false
+    end
+
+    #Decompose the json objects here
+    json_file_obj = json_file_data[fn]
+
+    file_prefix = json_file_obj["prefix"]
+
+    file_cloud = json_file_obj["cloud_name"]
+
+    if json_file_obj.has_key?("chunk_table")
+      #REBUILD CHUNKING THINGS HERE
+    else
+      file = Object.const_get(file_cloud).file_get prefix 
+    end
 
     if not file
       puts "There was an error getting the file"
