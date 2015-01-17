@@ -5,28 +5,30 @@ class Provider; end
 
 class GoogleService < Provider
   AUTH_SERVER = 'http://condensation-auth.herokuapp.com/google/'
-  client = Google::APIClient.new
   parent_id = "SOME GOOGLE ID FOR APPS FOLDER (get at startup or save in json on setup)"
+
+  # Get your credentials from the console
+  CLIENT_ID = '772741663299-kodvshk0l6vba9q7etio0vs62cl1d52h.apps.googleusercontent.com'
+  CLIENT_SECRET = 'Q_9RejAsp2eALbrenGNC3PDg'
+  OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
+
+  client = Google::APIClient.new
+  drive = client.discovered_api('drive', 'v2')
+
   # There are some issues with trying to split this up into a proper client-server for client auth
   # See this: https://developers.google.com/drive/web/quickstart/quickstart-ruby
   def self.get_token
-    # POST request to auth server to get authorization url
-    authorize_url_json = Net::HTTP.post_form(URI.parse(AUTH_URL+'authorize'))
-    parsed_json = JSON.parse(authorize_url_json)
-    authorize_url = parsed_json['authorize_url']
+    client.authorization.client_id = CLIENT_ID
+    client.authorization.client_secret = CLIENT_SECRET
+    client.authorization.scope = OAUTH_SCOPE
 
-    # Have the user sign in and authorize this app
-    puts 'Please authorise Condensation for your Google account:'
-    puts '1. Go to: ' + authorize_url
-    puts '2. Click "Allow" (you might have to log in first)'
-    puts '3. Copy the authorization code'
-    print 'Enter the authorization code here: '
-    code = gets.strip
+    uri = client.authorization.authorization_uri
+    Launchy.open(uri)
 
-    # POST request to auth server to get client access token
-    access_token_json = Net::HTTP.post_form(URI.parse(AUTH_URL+'api_token'), {'code' => code})
-    parsed_json = JSON.parse(access_token_json)
-    @@access_token = parsed_json['access_token']
+    # Exchange authorization code for access token
+    $stdout.write  "Enter authorization code: "
+    client.authorization.code = gets.chomp
+    client.authorization.fetch_access_token!
   end
 
   def self.file_get fn
@@ -63,11 +65,10 @@ class GoogleService < Provider
     file = drive.files.insert.request_schema.new({
       #metadata for later
     })
-    # Set the parent folder.
-    if parent_id
-      file.parents = [{'id' => parent_id}]
-    end
-    media = Google::APIClient::UploadIO.new(file_name, "application/octet-stream")
+
+    fn = File.basename file.path
+
+    media = Google::APIClient::UploadIO.new(fn, "application/octet-stream")
     result = client.execute(
       :api_method => drive.files.insert,
       :body_object => file,

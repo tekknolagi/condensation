@@ -1,0 +1,119 @@
+ html,body
+{
+    font-family:"Raleway", "sans-serif";
+    font-weight:500;
+    -webkit-font-smoothing:antialiased;
+    -webkit-user-select: none;
+    color:#42A6F3;
+    height: 100%;
+    width: 100%;
+}
+
+ul, li
+{
+    padding: 0;
+    margin: 0;
+}
+
+.template
+{
+    display: none;
+}
+
+.button
+{
+    cursor:pointer;
+}
+
+.spacer-15
+{
+    width: 100%;
+    height: 15%;
+}
+
+.header
+{
+    position: fixed;
+    font-size:400%;
+    height: 15%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.center-panel
+{
+    text-align:center;
+}
+
+    .file-list-container
+    {
+        width: 100%;
+        height: 100%;
+    }
+
+        .file-list-container-li
+        {
+            display: block;
+            font-size: 20px;
+            margin-left: 35%;
+            margin-right: 3%;
+
+            border: solid;
+
+            border-color:  rgba(66,166,243, 0.1);
+            border-radius: 10px;
+
+            text-align: left;
+
+        }
+
+        .file-list-container-li:hover
+        {
+            border-color:  rgba(66,166,243);
+        }
+
+            .file-info
+            {  
+                margin-top: 2%;
+                margin-bottom: 2%;
+                margin-left: 5%;
+            }
+
+                .file-info li 
+                {
+                    display: inline-block;
+                    border: none;
+                    margin-right: 20%;
+                }
+
+
+
+
+.side-panel
+{
+    height:100%;
+    width:20%;
+    text-align:center;
+    font-size: 200%;
+
+    position: fixed;
+}
+
+.filter-container
+{
+    font-size: 70%;
+    list-style: none;
+}
+
+.filter-location
+{
+    font-size: 60%;
+    list-style: none;
+}
+
+.footer
+{
+    width: 100%;
+    position: fixed;
+    bottom: 0%;
+}
