@@ -2,6 +2,7 @@ require './file'
 require './config'
 require './provider'
 require 'digest/sha1'
+require 'rake/pathmap'
 
 require 'json'
 
@@ -130,23 +131,20 @@ class Condense
 
     #Decompose the json objects here
     record = @config.db["fn2ref"][sha1]
-    filename = record["fn"]
+
+    # Convert filename back to relative path, but append a suffix to the end
+    rel_path = record["fn"].split('!').join('/')
+    fp = rel_path.pathmap "%X-#{rand 99}%x"
+
     file_chunks = record["chunks"] # file_chunks needs to sort the chunks by their names' last 5 digits
 
     # Assemble/concatenate chunks back together
-    file_chunks.map do |chunk|
-      name = @config.db["chunk2ref"][chunk]["service"]
-      fid = @config.db["chunk2ref"][chunk]["id"]
-      @service[name].file_get(filename, fid) # expects file_get to return plaintext file contents
-    end
-
-    # This is Amol's old code, may need to be reappropriated
-    if not file
-      puts "There was an error getting the file"
-      return false
-    else
-      file_write file
-      return true
+    File.open(File.expand_path fp, "w") do |f|
+      file_chunks.map do |chunk|
+        name = @config.db["chunk2ref"][chunk]["service"]
+        fid = @config.db["chunk2ref"][chunk]["id"]
+        f.write @service[name].file_get(filename, fid) # expects file_get to return plaintext file contents
+      end
     end
   end
 
