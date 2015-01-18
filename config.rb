@@ -9,12 +9,12 @@ class Konfig
       Dir.mkdir File.expand_path('~/.condensation')
     end
     if not File.exist?(File.expand_path '~/.condensation/api.json')
-      f = File.open(File.expand_path '~/.condensation/api.json', 'w')
-      f.write({ :dropbox => '', :onedrive => '', :box => '', :flickr => '', :google => ''}.to_json)
+      f =File.open(File.expand_path('~/.condensation/api.json'), 'w')
+      f.write({ :dropbox => '', :onedrive => '', :box => '', :google => ''}.to_json)
       f.close
     end
     if not File.exist?(File.expand_path '~/.condensation/db.json')
-      f = File.open(File.expand_path '~/.condensation/db.json', 'w')
+      f = File.open(File.expand_path('~/.condensation/db.json'), 'w')
       f.write({ :fn2ref => {}, :chunk2ref => {} }.to_json)
       f.close
     end
