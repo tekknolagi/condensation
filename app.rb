@@ -26,7 +26,7 @@ OptionParser.new do |opts|
 
   opts.on("-s", "--space [SERVICE]", "Get the amount of free space from a provider(s).") do |svc|
     if not svc
-      puts app.get_cloud_storage
+      puts app.get_cloud_usage
     else
       puts app.services[svc].space_free
     end
