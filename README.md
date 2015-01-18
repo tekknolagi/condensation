@@ -5,29 +5,9 @@ Condensation allows for maximisation of cloud storage capabilities by combining 
 
 ##Getting started:
 
-Make a folder called `~/.condensation`, then add `api.json` and `db.json` as follows:
+Run `ruby app.rb --configure` to add the accounts for `dropbox` and `onedrive`.
 
-#### api.json
-
-```js
-{
-  "dropbox": {},
-  "onedrive": {}
-}
-```
-
-#### db.json
-
-```js
-{
-  "fn2ref": {},
-  "chunk2ref": {}
-}
-```
-
-Now run `ruby app.rb --configure` to add the accounts for `dropbox` and `onedrive`.
-
-Finally, try uploading something! :)
+Finally, try uploading something with `ruby app.rb -u <file>`!
 
 ##App structure:
 
