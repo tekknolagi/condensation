@@ -5,7 +5,9 @@ Condensation allows for maximisation of cloud storage capabilities by combining 
 
 ##Getting started:
 
-Run `ruby app.rb --configure` for each service (Dropbox, OneDrive and Box), to setup the `~/.condensation` directory and authorize the program to access your cloud accounts.
+First, install dependencies with `bundle install`. Install Ruby Shoes from [http://shoesrb.com/downloads/](their downloads page) if you want to run a UI.
+
+Next, run `ruby app.rb --configure` for each service (Dropbox, OneDrive and Box), to setup the `~/.condensation` directory and authorize the program to access your cloud accounts.
 
 Finally, try uploading something with `ruby app.rb --upload <file>`!
 
