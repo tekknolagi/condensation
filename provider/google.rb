@@ -63,20 +63,20 @@ class GoogleService < Provider
 
       puts "6"
 
-      get '/' do
-        puts "7"
-        # handle possible callback from OAuth2 consent page.
-        if params[:code]
-          authorize_code(params[:code])
-          redirect '/'
-          puts "IT WORKED"
-        elsif params[:error] # User denied the oauth grant
-          halt 403
-          puts "IT FAILED"
-        end
-
-        redirect api_client.authorization.authorization_uri.to_s unless authorized?
+      
+      puts "7"
+      # handle possible callback from OAuth2 consent page.
+      if params[:code]
+        authorize_code(params[:code])
+        redirect '/'
+        puts "IT WORKED"
+      elsif params[:error] # User denied the oauth grant
+        halt 403
+        puts "IT FAILED"
       end
+
+      redirect api_client.authorization.authorization_uri.to_s unless authorized?
+      
 
     # At this point I believe the client is all set up (authenticated and whatnot)
     # To do is still: Figure out how we can avoid doing all this all over each time app.rb is run => The web based version of this (JS gapi) uses cookies; that part of the api is not open to devs
