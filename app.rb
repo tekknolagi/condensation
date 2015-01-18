@@ -32,11 +32,11 @@ OptionParser.new do |opts|
     end
   end
 
-  opts.on("-d", "--download FILENAME", "Downloads the file named FILENAME") do |args|
+  opts.on("-d", "--download FILEHASH", "Downloads the file with hash FILEHASH") do |args|
     puts app.file_get args
   end
 
-  opts.on("-x", "--delete FILENAME", "Deletes the file named FILENAME") do |args|
+  opts.on("-x", "--delete FILEHASH", "Deletes the file with hash FILEHASH") do |args|
     puts app.file_del args
   end
 
