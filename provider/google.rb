@@ -22,6 +22,8 @@ class GoogleService < Provider
   CACHED_API_FILE = "drive-#{API_VERSION}.cache"
   CREDENTIAL_STORE_FILE = "#{$0}-oauth2.json"
 
+  @client
+
   attr_accessor :access_token
 
   # There are some issues with trying to split this up into a proper client-server for client auth
@@ -32,8 +34,7 @@ class GoogleService < Provider
     logger = Logger.new(log_file)
     logger.level = Logger::DEBUG
 
-    client = Google::APIClient.new(:application_name => 'Ruby Drive sample',
-        :application_version => '1.0.0')
+    create_client
 
     # FileStorage stores auth credentials in a file, so they survive multiple runs
     # of the application. This avoids prompting the user for authorization every
@@ -41,13 +42,13 @@ class GoogleService < Provider
     # Note: FileStorage is not suitable for multi-user applications.
     file_storage = Google::APIClient::FileStorage.new(CREDENTIAL_STORE_FILE)
     if file_storage.authorization.nil?
-      client_secrets = Google::APIClient::ClientSecrets.load
+      @client_secrets = Google::APIClient::ClientSecrets.load
       # The InstalledAppFlow is a helper class to handle the OAuth 2.0 installed
       # application flow, which ties in with FileStorage to store credentials
       # between runs.
       flow = Google::APIClient::InstalledAppFlow.new(
-        :client_id => client_secrets.client_id,
-        :client_secret => client_secrets.client_secret,
+        :client_id => client.authorization.client_id,
+        :client_secret => client.authorization.client_secret,
         :scope => ['https://www.googleapis.com/auth/drive']
       )
       client.authorization = flow.authorize(file_storage)
@@ -146,6 +147,8 @@ class GoogleService < Provider
     else
       puts "There was an error inserting your file to drive"
       return false
+
+    #RETURN FILE ID
     end
   end
 
