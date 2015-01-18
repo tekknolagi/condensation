@@ -29,6 +29,8 @@ class GoogleService < Provider
     @client.authorization.fetch_access_token!
 
     puts @client.authorization.code
+    puts @client.authorization.fetch_access_token!
+    puts "Did it work?"
 
     # At this point I believe the client is all set up (authenticated and whatnot)
     # To do is still: Figure out how we can avoid doing all this all over each time app.rb is run
