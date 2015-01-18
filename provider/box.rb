@@ -31,11 +31,40 @@ class BoxService < Provider
     get_api_token code
   end
 
-  def file_put
+  def file_put file
+    fn = File.basename file.path
     token = @access_token['access_token']
+    uri = URI("https://api.box.com/2.0/files/content")
+    req = Net::HTTP::Post.new(uri.host, uri.port)
+    req.set_form_data({
+        :name => fn,
+        :parent => 0,
+        :file => file
+      })
+    req.use_ssl = true
+    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+      http.request(req)
+    end
+    request.initialize_http_header({
+        "Authorization" => "Bearer #{@access_token['access_token']}"
+      })
+    puts http.request(request).body
+    #res = JSON.parse http.request(request).body
   end
 
   def file_get
+  end
+
+  def file_del fn, fid
+    uri = URI.parse("https://api.box.com/2.0/files/#{fid}")
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    request = Net::HTTP::Delete.new(uri.request_uri)
+    request.initialize_http_header({
+        "Authorization" => "Bearer #{@access_token['access_token']}"
+      })
+    res = JSON.parse http.request(request).body
+    puts res
   end
 
   def space_free
@@ -47,6 +76,7 @@ class BoxService < Provider
         "Authorization" => "Bearer #{@access_token['access_token']}"
       })
     res = JSON.parse http.request(request).body
+    puts res
     (res['space_amount']-res['space_used'])/(1024**3).to_f
   end
 end
