@@ -2,6 +2,14 @@ require 'json'
 require 'launchy'
 require 'google/api_client'
 
+require 'rubygems'
+require 'google/api_client'
+require 'google/api_client/client_secrets'
+require 'google/api_client/auth/file_storage'
+require 'google/api_client/auth/installed_app'
+require 'logger'
+
+
 class Provider; end
 
 class GoogleService < Provider
@@ -10,77 +18,58 @@ class GoogleService < Provider
   OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
   REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
+  API_VERSION = 'v2'
+  CACHED_API_FILE = "drive-#{API_VERSION}.cache"
+  CREDENTIAL_STORE_FILE = "#{$0}-oauth2.json"
+
   attr_accessor :access_token
 
   # There are some issues with trying to split this up into a proper client-server for client auth
   # See this: https://developers.google.com/drive/web/quickstart/quickstart-ruby
   def get_token
-    puts "1"
-    create_client
-    authorize_url = @client.authorization.authorization_uri
-    puts "2"
-    # Have the user sign in and authorize this app
-    Launchy.open(authorize_url)
-    puts 'Please authorise Condensation for your Google account:'
-    puts '1. Go to: ' + authorize_url
-    puts '2. Click "Allow" (you might have to log in first)'
-    puts '3. Copy the authorization code'
-    print 'Enter the authorization code here: '
-    @client.authorization.code = gets.chomp
-    @client.authorization.fetch_access_token!
-    puts "3"
-    # Preload API definitions
-    client = Google::APIClient.new
-    :drive = client.discovered_api('drive', 'v2')
-    :oauth2 = client.discovered_api('oauth2', 'v2')
-    puts "4"
-    ##
-    # Exchanges the authorization code to fetch an access
-    # and refresh token. Stores the retrieved tokens in the session.
-    def authorize_code(code)
-      puts "8"
-      api_client.authorization.code = code
-      api_client.authorization.fetch_access_token!
-      # put the tokens in the session
-      puts "9"
-      session[:access_token] = api_client.authorization.access_token
-      session[:refresh_token] = api_client.authorization.refresh_token
-      session[:expires_in] = api_client.authorization.expires_in
-      session[:issued_at] = api_client.authorization.issued_at
-      puts "10"
+    log_file = File.open('drive.log', 'a+')
+    log_file.sync = true
+    logger = Logger.new(log_file)
+    logger.level = Logger::DEBUG
+
+    client = Google::APIClient.new(:application_name => 'Ruby Drive sample',
+        :application_version => '1.0.0')
+
+    # FileStorage stores auth credentials in a file, so they survive multiple runs
+    # of the application. This avoids prompting the user for authorization every
+    # time the access token expires, by remembering the refresh token.
+    # Note: FileStorage is not suitable for multi-user applications.
+    file_storage = Google::APIClient::FileStorage.new(CREDENTIAL_STORE_FILE)
+    if file_storage.authorization.nil?
+      client_secrets = Google::APIClient::ClientSecrets.load
+      # The InstalledAppFlow is a helper class to handle the OAuth 2.0 installed
+      # application flow, which ties in with FileStorage to store credentials
+      # between runs.
+      flow = Google::APIClient::InstalledAppFlow.new(
+        :client_id => client_secrets.client_id,
+        :client_secret => client_secrets.client_secret,
+        :scope => ['https://www.googleapis.com/auth/drive']
+      )
+      client.authorization = flow.authorize(file_storage)
+    else
+      client.authorization = file_storage.authorization
     end
 
-    puts "5"
-       # Make sure access token is up to date for each request
-      api_client.authorization.update_token!(session)
-
-      # if existing access token is expired and refresh token is set,
-      # ask for a new access token.
-      if api_client.authorization.refresh_token &&
-        api_client.authorization.expired?
-        api_client.authorization.fetch_access_token!
+    drive = nil
+    # Load cached discovered API, if it exists. This prevents retrieving the
+    # discovery document on every run, saving a round-trip to API servers.
+    if File.exists? CACHED_API_FILE
+      File.open(CACHED_API_FILE) do |file|
+        drive = Marshal.load(file)
       end
-
-      puts "6"
-
-      
-      puts "7"
-      # handle possible callback from OAuth2 consent page.
-      if params[:code]
-        authorize_code(params[:code])
-        redirect '/'
-        puts "IT WORKED"
-      elsif params[:error] # User denied the oauth grant
-        halt 403
-        puts "IT FAILED"
+    else
+      drive = client.discovered_api('drive', API_VERSION)
+      File.open(CACHED_API_FILE, 'w') do |file|
+        Marshal.dump(drive, file)
       end
+    end
 
-      redirect api_client.authorization.authorization_uri.to_s unless authorized?
-      
-
-    # At this point I believe the client is all set up (authenticated and whatnot)
-    # To do is still: Figure out how we can avoid doing all this all over each time app.rb is run => The web based version of this (JS gapi) uses cookies; that part of the api is not open to devs
-    # I imagine they did not intend for their apis to be used in a local system like this; increasingly I think this is a hole in the API
+    return client, drive
   end 
 
   def create_client
