@@ -32,7 +32,7 @@ class OnedriveService < Provider
     parsed_json # return parsed JSON object
   end
 
-  def file_get fid
+  def file_get (fn, fid)
     # fid is the file id for a file (get this from the db)
 
     uri = URI("https://apis.live.net/v5.0/#{fid}/content")
@@ -43,8 +43,8 @@ class OnedriveService < Provider
       response = https.request request
       puts response.body # For debug, delete this later
 
-      # blob is a binary plaintext string of the file contents - this may need to be wrapped into some sort of object?
-      return response.body
+     # return a binary plaintext string of the file contents
+     return response.body
     end
   end
 

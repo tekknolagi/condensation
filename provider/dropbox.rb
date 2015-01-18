@@ -32,10 +32,11 @@ class DropboxService < Provider
     @access_token
   end
 
-  def file_get fn
+  def file_get (fn, fid)
     # ignore metadata for now
     client = DropboxClient.new @access_token
-    client.get_file_and_metadata File.join('/', fn)
+    contents, metadata = client.get_file_and_metadata File.join('/', fn)
+    return contents # return a binary plaintext string of the file contents
   end
 
   def file_put file
