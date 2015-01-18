@@ -173,9 +173,9 @@ class Condense
     other_shas = @config.db['fn2ref'].keys - [sha1]
     shared_chunks = other_shas.map do |sha|
       @config.db['fn2ref'][sha1]['chunks'] & sha
-    end.inject(:<<)
+    end.inject(:<<) || []
 
-    to_delete = @config.db['fn2ref'][sha1]['chunks'] - shared_chunks
+    to_delete = @config.db["fn2ref"][sha1]["chunks"] - shared_chunks
 
     # Map over array of chunks to delete in the cloud
     to_delete.map do |chunk|
