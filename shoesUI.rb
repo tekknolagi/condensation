@@ -67,13 +67,13 @@ Shoes.app(title: "Condenser",
   }
 
   @space.click {
+    @amountLeft.replace "HERRO"
     counter = 0
     cloud_data = app.get_cloud_usage
     cloud_data.each do |cloud_name, data|
       counter += data
     end
-
-    print_current_size counter
+    @amountLeft.replace counter
   }
 
 
@@ -120,9 +120,4 @@ Shoes.app(title: "Condenser",
   @OneDrive.click {
     app.configure onedrive
   }
-
-  def print_current_size amount_free
-    amount_free = amount_free + " mb"
-    @amountLeft.replace amount_free
-  end
 }
