@@ -15,3 +15,6 @@ group :flickr do
 end
 
 gem 'rake'
+gem 'rest-client'
+gem 'multipart-post'
+gem 'ruby-multipart-post'

@@ -1,4 +1,7 @@
 require 'net/http'
+require 'net/http/post/multipart'
+require 'ruby-multipart-post'
+require 'rest-client'
 require 'json'
 require 'launchy'
 
@@ -34,24 +37,14 @@ class BoxService < Provider
   def file_put file
     fn = File.basename file.path
     token = @access_token['access_token']
-    uri = URI("https://upload.box.com/api/2.0/files/content")
-		http = Net::HTTP.new(uri.host, uri.port)
-    req = Net::HTTP::Post.new(uri.request_uri)
-    req.set_form_data({
-        :name => fn,
-        :parent => 0,
-        :file => file
-      })
-    http.use_ssl = true
-    res = http.request(req)
-    req.initialize_http_header({
-        "Authorization" => "Bearer #{@access_token['access_token']}"
-      })
-    #res = JSON.parse http.request(req).body
+    url = 'https://upload.box.com/api/2.0/files/content'
+    `curl -v -H 'Authorization: Bearer #{token}' -H 'Transfer-Encoding: chunked' -H 'Content-Length: #{file.size}' -F "filename=@#{file.path}" -F "folder_id=0" #{url}`
   end
 
   def file_get fid
-    
+    token = @access_token['access_token']
+    url = "https://upload.box.com/api/2.0/files/#{fid}/content"
+    `curl -v -H 'Authorization: Bearer #{token}' #{url}`
   end
 
   def file_del fn, fid

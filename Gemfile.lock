@@ -33,11 +33,17 @@ GEM
     jwt (1.2.0)
     launchy (2.4.3)
       addressable (~> 2.3)
+    mime-types (2.4.3)
     minitest (5.5.1)
     multi_json (1.10.1)
     multipart-post (2.0.0)
+    netrc (0.10.2)
     rake (10.4.2)
+    rest-client (1.7.2)
+      mime-types (>= 1.16, < 3.0)
+      netrc (~> 0.7)
     retriable (1.4.1)
+    ruby-multipart-post (0.4.0)
     signet (0.6.0)
       addressable (~> 2.3)
       extlib (~> 0.9)
@@ -56,4 +62,7 @@ DEPENDENCIES
   flickraw
   google-api-client
   launchy
+  multipart-post
   rake
+  rest-client
+  ruby-multipart-post
