@@ -46,13 +46,13 @@ class GoogleService < Provider
       # application flow, which ties in with FileStorage to store credentials
       # between runs.
       flow = Google::APIClient::InstalledAppFlow.new(
-        :client_id => client.authorization.client_id,
-        :client_secret => client.authorization.client_secret,
+        :client_id => @client.authorization.client_id,
+        :client_secret => @client.authorization.client_secret,
         :scope => ['https://www.googleapis.com/auth/drive']
       )
-      client.authorization = flow.authorize(file_storage)
+      @client.authorization = flow.authorize(file_storage)
     else
-      client.authorization = file_storage.authorization
+      @client.authorization = file_storage.authorization
     end
 
     drive = nil
@@ -63,7 +63,7 @@ class GoogleService < Provider
         drive = Marshal.load(file)
       end
     else
-      drive = client.discovered_api('drive', API_VERSION)
+      drive = @client.discovered_api('drive', API_VERSION)
       File.open(CACHED_API_FILE, 'w') do |file|
         Marshal.dump(drive, file)
       end
@@ -149,6 +149,9 @@ class GoogleService < Provider
 
     #RETURN FILE ID
     end
+  end
+
+  def file_del fn fid
   end
 
   def space_free
