@@ -55,10 +55,6 @@ class Condense
   #Also handles chunking
   def file_put fn
     prefix = Digest::SHA1.hexdigest(File.open(fn, "rb").read)
-    if not fn
-      puts "There was an error: the fn was nil"
-      return false
-    end
 
     if @config.db["fn2ref"].has_key? prefix
       puts "There was an error: this file name already exists"

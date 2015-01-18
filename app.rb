@@ -21,7 +21,7 @@ OptionParser.new do |opts|
   end
 
   opts.on("-u", "--upload FILEPATH", "Uploads the file at FILEPATH.") do |args|
-    puts app.file_put args
+    app.file_put args
   end
 
   opts.on("-d", "--download FILENAME", "Downloads the file named FILENAME.") do |args|
