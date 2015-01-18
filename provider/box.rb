@@ -34,22 +34,20 @@ class BoxService < Provider
   def file_put file
     fn = File.basename file.path
     token = @access_token['access_token']
-    uri = URI("https://api.box.com/2.0/files/content")
-    req = Net::HTTP::Post.new(uri.host, uri.port)
+    uri = URI("https://upload.box.com/api/2.0/files/content")
+		http = Net::HTTP.new(uri.host, uri.port)
+    req = Net::HTTP::Post.new(uri.request_uri)
     req.set_form_data({
         :name => fn,
         :parent => 0,
         :file => file
       })
-    req.use_ssl = true
-    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
-      http.request(req)
-    end
-    request.initialize_http_header({
+    http.use_ssl = true
+    res = http.request(req)
+    req.initialize_http_header({
         "Authorization" => "Bearer #{@access_token['access_token']}"
       })
-    puts http.request(request).body
-    #res = JSON.parse http.request(request).body
+    #res = JSON.parse http.request(req).body
   end
 
   def file_get
@@ -76,7 +74,6 @@ class BoxService < Provider
         "Authorization" => "Bearer #{@access_token['access_token']}"
       })
     res = JSON.parse http.request(request).body
-    puts res
     (res['space_amount']-res['space_used'])/(1024**3).to_f
   end
 end
