@@ -42,7 +42,9 @@ class Condense
   end
 
   def file_list
-    @config.db["fn2ref"].to_json
+    @config.db["fn2ref"].map do |ref|
+      puts "#{ref['fn']}: #{ref['chunks'].join(' ')}"
+    end
   end
 
   def fn2hash fn
