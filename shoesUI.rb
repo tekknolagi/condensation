@@ -12,16 +12,44 @@ Shoes.app(title: "Condenser",
 
   stack {
     @note = para "Hello"
-    @upload = button "       Upload       "
+    @config = button   "       Config       "
+    @list = button     "        List        "
+    @upload = button   "       Upload       "
+    @space = button    "        Space       "
     @download = button "      Download      "
-    @delete = button "       Delete       "
+    @delete = button   "       Delete       "
 
-    @Google = button "Add Google Account  "
-    @Dropbox = button "Add Dropbox Account "
+    @Google = button   " Add Google Account "
+    @Dropbox = button  "Add Dropbox Account "
     @OneDrive = button "Add OneDrive Account"
+
+    @sha = button      "       getSha       "
 
     @amountLeft = para ""
     @amountBar = progress width: 1.0
+
+    @fileList = para ""
+  }
+
+   @config.click {
+      service = ask("Please Enter a Service to Configure")
+      if not service
+        @note.replace "There is no service listed"
+        return
+      end
+
+      app.configure service
+
+      #check to make sure these are the right function names for total size in cloud and amount used in cloud
+      print_current_size condense.get_total_size condense.get_amount_used
+    }
+
+  @list.click {
+    @fileList.replace " "
+    file_list = app.file_list
+    file_list.each do |file|
+      @fileList.append "\n #{file}"
+    end
   }
 
   @upload.click {
@@ -36,6 +64,17 @@ Shoes.app(title: "Condenser",
     #check to make sure these are the right function names for total size in cloud and amount used in cloud
     print_current_size condense.get_total_size condense.get_amount_used
   }
+
+  @space.click {
+    counter = 0
+    cloud_data = app.get_cloud_usage
+    cloud_data.each do |cloud_name, data|
+      counter += data
+    end
+
+    print_current_size counter
+  }
+
 
   @download.click {
     filename = ask("Please Enter a File Name to Download a File")
@@ -57,6 +96,18 @@ Shoes.app(title: "Condenser",
     app.file_del filename
   }
 
+  @sha.click {
+    filename = ask("Please Enter a File Name")
+    if not filename
+      @note.replace "There is no file name listed"
+      return
+    end
+
+    app.hash2fn filename
+  }
+
+
+
   @Google.click {
     app.configure Google
   }
@@ -69,27 +120,8 @@ Shoes.app(title: "Condenser",
     app.configure OneDrive
   }
 
-  def print_file_list
-    list = app.file_list
-
-    #Not sure if this works like it is supposed to
-    list.each do |filename, properties|
-      @temp = button filename
-      @temp.click {
-        app.file_get filename
-      }
-    end
+  def print_current_size amount_free
+    amount_free = amount_free + " mb"
+    @amountLeft.replace amount_free
   end
-
-
-  def print_current_size total_size amount_used
-    percent_used = amount_used/total_size
-    amount_left = total_size - amount_used
-    @amountBar.fraction = percent_used
-    amount_left = amount_left + " mb"
-    @amountLeft.replace amount_left
-  end
-
-  print_file_list #generates the files below the rest of the buttons
-
 }
