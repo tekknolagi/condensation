@@ -32,14 +32,20 @@ class OnedriveService < Provider
     parsed_json # return parsed JSON object
   end
 
-  def file_get fn
-    # Assumes fn is a basename
+  def file_get fid
+    # fid is the file id for a file (get this from the db)
 
-    # Retrieve onedrive file ID from db
-    fid = json_file_data[fn][:id]
+    uri = URI("https://apis.live.net/v5.0/#{fid}/content")
+    uri.query = URI.encode_www_form({ :access_token => @access_token['access_token']})
 
-    # blob is a binary plaintext string of the file contents - this may need to be wrapped into some sort of object?
-    Net::HTTP.get(URI("https://apis.live.net/v5.0/#{fid}/content"), { 'access_token' => @access_token })
+    Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |https|
+      request = Net::HTTP::Get.new uri
+      response = https.request request
+      puts response.body # For debug, delete this later
+
+      # blob is a binary plaintext string of the file contents - this may need to be wrapped into some sort of object?
+      return response.body
+    end
   end
 
   def file_put file
