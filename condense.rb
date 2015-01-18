@@ -43,7 +43,10 @@ class Condense
 
   def file_list
     @config.db["fn2ref"].map do |sha, ref|
-      puts "#{ref['fn']}: #{ref['chunks'].join(' ')}"
+      print "#{ref['fn']}: "
+      ref['chunks'].map do |chunk|
+        print "#{chunk}(#{@config.db['chunk2ref'][chunk]['service']})"
+      end
     end
   end
 
