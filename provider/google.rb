@@ -42,7 +42,6 @@ class GoogleService < Provider
     # Note: FileStorage is not suitable for multi-user applications.
     file_storage = Google::APIClient::FileStorage.new(CREDENTIAL_STORE_FILE)
     if file_storage.authorization.nil?
-      @client_secrets = Google::APIClient::ClientSecrets.load
       # The InstalledAppFlow is a helper class to handle the OAuth 2.0 installed
       # application flow, which ties in with FileStorage to store credentials
       # between runs.
