@@ -24,6 +24,14 @@ OptionParser.new do |opts|
     app.file_put args
   end
 
+  opts.on("-s", "--space [SERVICE]", "Get the amount of free space from a provider(s).") do |svc|
+    if not svc
+      puts app.get_cloud_usage
+    else
+      puts app.services[svc].space_free
+    end
+  end
+
   opts.on("-d", "--download FILENAME", "Downloads the file named FILENAME.") do |args|
     puts app.file_get args
   end

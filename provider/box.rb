@@ -39,5 +39,14 @@ class BoxService < Provider
   end
 
   def space_free
+    uri = URI.parse("https://api.box.com/2.0/users/me")
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request.initialize_http_header({
+        "Authorization" => "Bearer #{@access_token['access_token']}"
+      })
+    res = JSON.parse http.request(request).body
+    (res['space_amount']-res['space_used'])/(1024**3).to_f
   end
 end

@@ -5,17 +5,17 @@ class Konfig
   attr_accessor :db
 
   def initialize
-    if not Dir.exists?('~/.condensation')
-      Dir.mkdir '~/.condensation'
+    if not Dir.exists?(File.expand_path '~/.condensation')
+      Dir.mkdir File.expand_path('~/.condensation')
     end
-    if not File.exist?('~/.condensation/api.json')
+    if not File.exist?(File.expand_path '~/.condensation/api.json')
       f = File.open(File.expand_path '~/.condensation/api.json', 'w')
-      f.write { :dropbox => '', :onedrive => '', :box => '', :flickr => '', :google => ''}.to_json
+      f.write({ :dropbox => '', :onedrive => '', :box => '', :flickr => '', :google => ''}.to_json)
       f.close
     end
-    if not File.exist?('~/.condensation/db.json')
+    if not File.exist?(File.expand_path '~/.condensation/db.json')
       f = File.open(File.expand_path '~/.condensation/db.json', 'w')
-      f.write { :fn2ref => {}, :chunk2ref => {} }.to_json
+      f.write({ :fn2ref => {}, :chunk2ref => {} }.to_json)
       f.close
     end
 
