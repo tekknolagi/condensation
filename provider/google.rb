@@ -31,8 +31,8 @@ class GoogleService < Provider
     puts "3"
     # Preload API definitions
     client = Google::APIClient.new
-    set :drive, client.discovered_api('drive', 'v2')
-    set :oauth2, client.discovered_api('oauth2', 'v2')
+    :drive = client.discovered_api('drive', 'v2')
+    :oauth2 = client.discovered_api('oauth2', 'v2')
     puts "4"
     ##
     # Exchanges the authorization code to fetch an access
