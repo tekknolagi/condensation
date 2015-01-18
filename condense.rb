@@ -47,6 +47,7 @@ class Condense
       ref['chunks'].map do |chunk|
         print "#{chunk}(#{@config.db['chunk2ref'][chunk]['service']})"
       end
+      print "\n"
     end
   end
 
