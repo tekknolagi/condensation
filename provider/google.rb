@@ -52,7 +52,7 @@ class GoogleService < Provider
     @client.authorization.redirect_uri = REDIRECT_URI
     @client.authorization.access_token = @access_token if @access_token
 
-    puts client.authorization.access_token
+    puts @client.authorization.access_token
   end
 
   def file_get fn
