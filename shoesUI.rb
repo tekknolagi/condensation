@@ -1,9 +1,9 @@
-#require './file'
-#require './config'
-#require './provider'
-#require './condense'
+require './file'
+require './config'
+require './provider'
+require './condense'
 
-#app = Condense.new
+app = Condense.new
 
 
 Shoes.app(title: "Condenser",
@@ -14,13 +14,14 @@ Shoes.app(title: "Condenser",
     @note = para "Hello"
     @upload = button "       Upload       "
     @download = button "      Download      "
+    @delete = button "       Delete       "
+
     @Google = button "Add Google Account  "
     @Dropbox = button "Add Dropbox Account "
     @OneDrive = button "Add OneDrive Account"
 
     @amountLeft = para ""
     @amountBar = progress width: 1.0
-
   }
 
   @upload.click {
@@ -44,6 +45,16 @@ Shoes.app(title: "Condenser",
     end
 
     app.file_get filename
+  }
+
+  @delete.click {
+    filename = ask("Please Enter a File Name to Delete")
+    if not filename
+      @note.replace "There is no file name listed"
+      return
+    end
+
+    app.file_del filename
   }
 
   @Google.click {
