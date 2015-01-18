@@ -61,11 +61,26 @@ class OnedriveService < Provider
       response = https.request request
       parsed_json = JSON.parse response.body
 
+      # For debugging...
       puts @access_token['access_token']
       puts response.body
 
-      return parsed_json['id']
+      return parsed_json['id'] # file id is returned, stored in db schema
     end
+  end
+
+  def file_del (fn, fid)
+    uri = URI("https://apis.live.net/v5.0/#{fid}")
+    uri.query = URI.encode_www_form({ :access_token => @access_token['access_token'] })
+
+    Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |https|
+      request = Net::HTTP::Delete.new uri
+      response = https.request request
+      parsed_json = JSON.parse response.body
+      
+      # For debugging...
+      puts parsed_json
+     end
   end
 
   def space_free

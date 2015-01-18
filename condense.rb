@@ -88,9 +88,14 @@ class Condense
           continuing = false
           break
         end
-        @services[most_filled_cloud[0]].file_put File.open(chunk[:fn], 'rb')
+        fid = @services[most_filled_cloud[0]].file_put File.open(chunk[:fn], 'rb') # file_put returns file id
         File.unlink(chunk[:fn])
-        @config.db["chunk2ref"][chunk[:sha1]] = most_filled_cloud[0]
+
+        # Store storage service and fid (if applicable) of each chunk
+        @config.db["chunk2ref"][chunk[:sha1]] = {
+          :service => most_filled_cloud[0],
+          :id => fid
+        }
         shas.push chunk[:sha1]
         counter += 1
       end
@@ -119,7 +124,7 @@ class Condense
     end
 
     if not @config.db["fn2ref"].has_key?(sha1)
-      puts "There was an error: the sha1 doesn't previously exists"
+      puts "There was an error: the sha1 does not exist"
       return false
     end
 
@@ -145,6 +150,38 @@ class Condense
     end
   end
 
+  def file_del sha1
+    if not sha1
+      puts "There was an error: the sha1 was nil"
+      return false
+    end
+
+    if not @config.db["fn2ref"].has_key?(sha1)
+      puts "There was an error: the sha1 does not exist"
+      return false
+    end
+
+    # Map over array of the other file hashes
+    # For each hash, find the intersect between its chunks and this hash's chunks and accumulate
+    other_shas = @config.db['fn2ref'].keys - [sha1]
+    shared_chunks = other_shas.map do |sha|
+      @config.db['fn2ref'][sha1]['chunks'] & sha
+    end.inject(:<<)
+
+    to_delete = @config.db['fn2ref'][sha1]['chunks'] - shared_chunks
+
+    # Map over array of chunks to delete in the cloud
+    to_delete.map do |chunk|
+      name = @config.db['chunk2ref'][chunk]['service']
+      # chunk is filename, also pass chunk's id
+      @services[name].file_del(chunk, @config.db['chunk2ref'][chunk]['id'])
+    end
+
+    # Delete sha1 entry in db
+    @config.db['fn2ref'].delete sha1    
+  end 
+
+
   #returns a list of free data (value) per cloud (key)
   def get_cloud_usage
     @config.keys.keys.map do |key|
@@ -168,4 +205,5 @@ class Condense
       return min_size
     end
   end
+
 end

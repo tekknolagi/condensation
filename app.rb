@@ -36,6 +36,10 @@ OptionParser.new do |opts|
     puts app.file_get args
   end
 
+  opts.on("-x", "--delete FILENAME", "Deletes the file named FILENAME.") do |args|
+    puts app.file_del args
+  end
+
   begin
     opts.parse!
 

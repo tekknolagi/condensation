@@ -45,6 +45,12 @@ class DropboxService < Provider
     # Good practice would be to inspect the response to make sure everything's ok
     client = DropboxClient.new @access_token
     client.put_file File.join('/', fn), file
+    return '' # fid is empty string for dropbox - no fid
+  end
+
+  def file_del (fn, fid) # fid is ignored
+    client = DropboxClient.new @access_token
+    client.file_delete File.join('/', fn)
   end
 
   def space_free
