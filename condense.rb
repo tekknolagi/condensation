@@ -152,7 +152,6 @@ class Condense
       file_chunks.each do |chunk|
         name = @config.db["chunk2ref"][chunk]["service"]
         fid = @config.db["chunk2ref"][chunk]["id"]
-        puts fid
         f.write @services[name].file_get(chunk, fid) # expects file_get to return plaintext file contents
       end
     end

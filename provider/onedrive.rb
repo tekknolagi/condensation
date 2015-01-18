@@ -38,14 +38,17 @@ class OnedriveService < Provider
     uri = URI("https://apis.live.net/v5.0/#{fid}/content")
     uri.query = URI.encode_www_form({ :access_token => @access_token['access_token']})
 
-    Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |https|
-      request = Net::HTTP::Get.new uri
-      response = https.request request
-      puts response.body # For debug, delete this later
+    resp = `curl -s -L -X GET https://apis.live.net/v5.0/#{fid}/content?access_token=#{@access_token['access_token']}`
+
+    return resp
+#    Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |https|
+#     request = Net::HTTP::Get.new uri
+#     response = https.request request
+#     p response # For debug, delete this later
 
      # return a binary plaintext string of the file contents
-     return response.body
-    end
+#     return response.body
+# end
   end
 
   def file_put file
