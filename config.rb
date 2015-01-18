@@ -10,7 +10,7 @@ class Konfig
     end
     if not File.exist?(File.expand_path '~/.condensation/api.json')
       f =File.open(File.expand_path('~/.condensation/api.json'), 'w')
-      f.write({ :dropbox => '', :onedrive => '', :box => '', :google => ''}.to_json)
+      f.write({ :dropbox => '', :onedrive => '', :box => ''}.to_json) # when ready, make sure this includes google as well
       f.close
     end
     if not File.exist?(File.expand_path '~/.condensation/db.json')
