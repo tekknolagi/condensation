@@ -3,11 +3,7 @@ require 'launchy'
 require 'google/api_client'
 
 require 'rubygems'
-require 'google/api_client'
-require 'google/api_client/client_secrets'
-require 'google/api_client/auth/file_storage'
-require 'google/api_client/auth/installed_app'
-require 'logger'
+
 
 
 class Provider; end
@@ -29,52 +25,18 @@ class GoogleService < Provider
   # There are some issues with trying to split this up into a proper client-server for client auth
   # See this: https://developers.google.com/drive/web/quickstart/quickstart-ruby
   def get_token
-    puts "1"
-    log_file = File.open('drive.log', 'a+')
-    log_file.sync = true
-    logger = Logger.new(log_file)
-    logger.level = Logger::DEBUG
-    puts "2"
     create_client
+   
+    uri = client.authorization.authorization_uri
+    Launchy.open(uri)
 
-    # FileStorage stores auth credentials in a file, so they survive multiple runs
-    # of the application. This avoids prompting the user for authorization every
-    # time the access token expires, by remembering the refresh token.
-    # Note: FileStorage is not suitable for multi-user applications.
-    file_storage = Google::APIClient::FileStorage.new(CREDENTIAL_STORE_FILE)
-    if file_storage.authorization.nil?
-        puts "3"
-      # The InstalledAppFlow is a helper class to handle the OAuth 2.0 installed
-      # application flow, which ties in with FileStorage to store credentials
-      # between runs.
-      flow = Google::APIClient::InstalledAppFlow.new(
-        :client_id => @client.authorization.client_id,
-        :client_secret => @client.authorization.client_secret,
-        :scope => ['https://www.googleapis.com/auth/drive']
-      )
-      @client.authorization = flow.authorize(file_storage)
-    else
-      @client.authorization = file_storage.authorization
-    end
-  puts "4"
-    drive = nil
-    # Load cached discovered API, if it exists. This prevents retrieving the
-    # discovery document on every run, saving a round-trip to API servers.
-    if File.exists? CACHED_API_FILE
-      File.open(CACHED_API_FILE) do |file|
-        drive = Marshal.load(file)
-          puts "5"
-      end
-    else
-      drive = @client.discovered_api('drive', API_VERSION)
-      File.open(CACHED_API_FILE, 'w') do |file|
-        Marshal.dump(drive, file)
-          puts "6"
-      end
-    end
-      puts "7"
-    return @client, drive
-  end 
+    # Exchange authorization code for access token
+    $stdout.write  "Enter authorization code: "
+    client.authorization.code = gets.chomp
+    client.authorization.fetch_access_token!
+
+    puts client.authorization.code
+  end
 
   def create_client
       puts "2.1"
