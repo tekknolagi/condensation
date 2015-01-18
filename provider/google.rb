@@ -1,15 +1,15 @@
 require 'rubygems'
+require 'json'
+require 'launchy'
 require 'google/api_client'
 
 class Provider; end
 
 class GoogleService < Provider
   AUTH_SERVER = 'http://condensation-auth.herokuapp.com/google/'
-  parent_id = "SOME GOOGLE ID FOR APPS FOLDER (get at startup or save in json on setup)"
 
   # Get your credentials from the console
   CLIENT_ID = '772741663299-kodvshk0l6vba9q7etio0vs62cl1d52h.apps.googleusercontent.com'
-  CLIENT_SECRET = 'Q_9RejAsp2eALbrenGNC3PDg'
   OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
 
   client = Google::APIClient.new
@@ -18,8 +18,14 @@ class GoogleService < Provider
   # There are some issues with trying to split this up into a proper client-server for client auth
   # See this: https://developers.google.com/drive/web/quickstart/quickstart-ruby
   def self.get_token
+    # POST request to auth server to get JSON of api keys
+    secrets = Net::HTTP.get(URI.parse(AUTH_SERVER+'secrets'))
+    api_secrets = JSON.parse(secrets)
+    api_key = api_secrets['key']
+    api_secret = api_secrets['secret']
+
     client.authorization.client_id = CLIENT_ID
-    client.authorization.client_secret = CLIENT_SECRET
+    client.authorization.client_secret = api_secret
     client.authorization.scope = OAUTH_SCOPE
 
     uri = client.authorization.authorization_uri

@@ -37,10 +37,7 @@ class Condense
   end
 
   def file_list
-    @config.db["fn2ref"].each do |filename, properties|
-      puts "#{filename}-----"
-      puts properties
-    end
+    @config.db["fn2ref"].to_json
   end
 
   #get_clouds returns a list of clouds that are currently connected to the users files
@@ -53,12 +50,13 @@ class Condense
   #Handler for uploading files. Returns true if the file upload worked, false if it failed at any point along the way.
   #Also handles chunking
   def file_put fn
+    prefix = Digest::SHA1.hexdigest(File.open(fn, "rb").read)
     if not fn
       puts "There was an error: the fn was nil"
       return false
     end
 
-    if @config.db["fn2ref"].has_key?(fn)
+    if @config.db["fn2ref"].has_key? prefix
       puts "There was an error: this file name already exists"
       return false
     end
@@ -68,78 +66,75 @@ class Condense
       return false
     end
 
-    fn = fn.split('/').join('!')
-
     total_space = get_clouds.map do |name|
       @services[name].space_free
     end.inject(:+)
-    file_size = File.size(fn)
+    file_size = File.size(fn)/(1024**2).to_f
 
     if file_size > total_space
       puts "This file was too large"
       return false
     end
 
-    file = File.open fn
-    content = File.open(fn, "rb").read
-    prefix = Digest::SHA1.hexdigest content
-    file_properties = Hash.new
+    file = File.open(fn, "rb")
 
-    most_filled_cloud = get_most_filled_cloud file_size
-    if not most_filled_cloud
-      chunked_file_list = file.chunk(fn, prefix)
-      chunk_table = chunking_handler chunked_file_list
-      if not chunk_table
-        puts "There was a critical error"
-        return false
-      else
-        file_properties[:chunk_table] = chunk_table
+    shas = []
+    continuing = true
+    while (most_filled_cloud = get_most_filled_cloud(file_size)) && continuing
+      counter = 0
+      while counter * 1024**2 < most_filled_cloud[1]
+        chunk = file.make_chunk(prefix, 1024**2)
+        if not chunk
+          continuing = false
+          break
+        end
+        @services[most_filled_cloud[0]].file_put File.open(chunk[:fn], 'rb')
+        File.unlink(chunk[:fn])
+        @config.db["chunk2ref"][chunk[:sha1]] = most_filled_cloud[0]
+        shas.push chunk[:sha1]
+        counter += 1
       end
     end
 
-    #would need to pass the database id at some point, after the API code return (at least, for things like drive)
-    file_properties[:prefix] = prefix
-    file_properties[:cloud_name] = most_filled_cloud
+    @config.db["fn2ref"][prefix] = {
+      :fn => fn.split('/').join('!'),
+      :chunks => shas
+    }
 
-    #NOTE: Made this different from using the prefix as vector. User will never search for files by prefix, but will by filename. The solution is to
-    #add function that checks to make sure filename is unique, and prevents user otherwise (see above)
-
-    #Write JSON file data to a file stored somewhere
-    @config.db["fn2ref"][:file_name] = fn
-
-    @services[most_filled_cloud].file_put file
     true
   end
 
   #Handler for downloading files. Returns true if the file download worked, false if it failed any point along the way.
-  def self.file_write file
-    filename = File.basename(File.path(file))
+  def file_write file
+    filename = File.basename File.path file
     File.open(filename, "w") do |f|
       f.write(file)
     end
   end
 
-  def file_get fn
-    if not fn
-      puts "There was an error: the fn was nil"
+  def file_get sha1
+    if not sha1
+      puts "There was an error: the sha1 was nil"
       return false
     end
 
-    if not @config.db["fn2ref"].has_key?(fn)
-      puts "There was an error: the fn doesn't previously exists"
+    if not @config.db["fn2ref"].has_key?(sha1)
+      puts "There was an error: the sha1 doesn't previously exists"
       return false
     end
 
     #Decompose the json objects here
-    json_file_obj = @config.db["fn2ref"][fn]
-    file_prefix = json_file_obj["prefix"]
-    file_cloud = json_file_obj["cloud_name"]
+    record = @config.db["fn2ref"][sha1]
+    prefix = record["prefix"]
+    provider = record["provider"]
 
-    if json_file_obj.has_key?("chunk_table")
-      #REBUILD CHUNKING THINGS HERE
-    else
-      file = Object.const_get(file_cloud).file_get prefix
-    end
+    #    if json_file_obj.has_key?("chunks")
+    #REBUILD CHUNKING THINGS HERE
+    puts "REBUILD"
+    file = nil
+    #    else
+    #      file = file_cloud).file_get prefix
+    #    end
 
     if not file
       puts "There was an error getting the file"
@@ -165,7 +160,7 @@ class Condense
       size > file_size
     end.min_by do |name, size|
       size
-    end[0]
+    end
 
     if not min_size
       return false
@@ -173,24 +168,4 @@ class Condense
       return min_size
     end
   end
-
-  #This function assists the main uploader handler by taking the list of chunks produced for too-large files
-  # and storing them in various clouds using get_most_filled_cloud
-  def chunking_handler list_of_chunks
-    chunk_table = Hash.new
-
-    list_of_chunks.each do |chunk|
-      most_filled_cloud = get_most_filled_cloud chunk.size
-
-      #Not sure how to get filename of a file thats already instantiated <<<<THIS NEEDS CHECKING
-
-      chunk_table[:chunk.basename] = chunk
-      @services[most_filled_cloud].file_put chunk.basename, chunk
-    end
-
-    return chunk_table
-  end
-
-  # puts DropboxService.get_token
-  # puts DropboxService.file_put File.open('file.rb')
 end
