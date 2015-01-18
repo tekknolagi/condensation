@@ -73,7 +73,7 @@ class GoogleService < Provider
       end
     end
       puts "7"
-    return client, drive
+    return @client, drive
   end 
 
   def create_client
