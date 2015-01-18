@@ -25,7 +25,7 @@ Make a folder called `~/.condensation`, then add `api.json` and `db.json` as fol
 }
 ```
 
-Now run `ruby app.c --configure` to add the accounts for `dropbox` and `onedrive`.
+Now run `ruby app.rb --configure` to add the accounts for `dropbox` and `onedrive`.
 
 Finally, try uploading something! :)
 
@@ -33,7 +33,8 @@ Finally, try uploading something! :)
 
 Condensation keeps a JSON database under `~/.condensation/db.json`, along with a database of API tokens for various services under `~/.condensation/api.json`.
 
-...
+####Initial configuration:
+In the initial configuration, Condensation will request access to your accounts on Dropbox, OneDrive, Google Drive and Box. For each service, the app contacts an authentication server which handles the API keys. After configuration, your personal account tokens are stored in api.json so that this configuration need not be repeated.
 
 (gotta work on this documentation)
 
