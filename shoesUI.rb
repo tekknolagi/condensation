@@ -46,7 +46,7 @@ Shoes.app(title: "Condenser",
   @list.click {
     @fileList.replace " "
     file_list = app.file_list
-    file_list.each do |file|
+    file_list.each do |file, ref|
       @fileList.append "\n #{file}"
     end
   }
