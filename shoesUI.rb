@@ -1,9 +1,9 @@
-#require './file'
-#require './config'
-#require './provider'
-#require './condense'
+require './file'
+require './config'
+require './provider'
+require './condense'
 
-#app = Condense.new
+app = Condense.new
 
 
 Shoes.app(title: "Condenser",
@@ -22,7 +22,6 @@ Shoes.app(title: "Condenser",
 
     @amountLeft = para ""
     @amountBar = progress width: 1.0
-
   }
 
   @upload.click {
