@@ -5,6 +5,7 @@ require 'google/api_client'
 class Provider; end
 
 class GoogleService < Provider
+
   AUTH_SERVER = 'http://condensation-auth.herokuapp.com/google'
   OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
   REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
@@ -85,6 +86,7 @@ class GoogleService < Provider
     file = drive.files.insert.request_schema.new({
       #metadata for later
     })
+
     # Set the parent folder.
     if parent_id
       file.parents = [{'id' => parent_id}]

@@ -153,7 +153,7 @@ class Condense
   end
 
   #returns the name (string) of the cloud that is most filled BUT STILL FITS THE FILE_SIZE
-  #calls chunking if needed
+  #returns false if chunking is needed
   def get_most_filled_cloud file_size
     cloud_usage_list = get_cloud_usage
     min_size = cloud_usage_list.select do |name, size|

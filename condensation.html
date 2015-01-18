@@ -1,0 +1,115 @@
+
+<html>
+
+	<head>
+    	<title>Condensation</title>
+
+    	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <script type="text/javascript" src="https://apis.google.com/js/client.js"></script>
+
+		<!-- latest jQuery direct from google's CDN -->
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+		</script>
+
+		<!--Google font -->
+        <link href='http://fonts.googleapis.com/css?family=Raleway:400,100' rel='stylesheet' type='text/css'>
+
+        <!--main CSS stylesheet for page -->
+		<link rel="stylesheet" href="css/condensationCSS.css" />
+
+		<!--icons -->
+        <link rel="stylesheet" href="css/font-awesome-4.1.0/css/font-awesome.min.css">
+
+	</head>           
+
+
+	<body>
+
+		<div class="header">
+			Condensation
+			<div class="subtitle">
+				The Universal Cloud and Data Storage Collector
+			</div>
+		</div>
+
+		  
+		<div class="spacer-15"></div>
+
+		<div class="side-panel">
+
+			<div class="spacer-15"></div>
+			<div class="button upload" id="UploadButton"> Upload </div>
+			<input type="file" id="InputFile" name="files[]" multiple />
+
+			<div class="spacer-15"></div>
+
+			<div class="text-amount-left one">
+				You Have
+			</div>
+
+			<div class="number-amount-left"> 50 Gb </div>
+
+			<div class="text-amount-left two">
+			Left In Your Clouds
+			</div>
+
+			<div class="spacer-5"></div>
+
+			<div class="space-left-bar">
+				<div class="space-fill"></div>
+			</div>
+
+			<div class="spacer-10"></div>
+
+			<div class="button add-cloud" id="AddCloud"> Add a Cloud </div>
+		</div>
+
+		<div class="center-panel">
+            <ul class="file-list-container">
+            	<li class="file-list-top">
+            		<ul class="file-header-info">
+						<li class="file-name-header">Title</li>
+						<li class="file-size-header">File Size</li>
+						<li class="file-chunk-header"># of Chunks</li>
+					</ul>
+            	</li>
+            </ul>
+        </div>
+		
+	</body>
+
+
+	<div class="footer">@Max Bernstein, Arun Drelich, Derek Hong, Amol Kapoor</div>
+
+
+	  <div class="new-cloud-panel">
+	        <div class="new-cloud-cover">
+	        </div>
+	        <ul class="new-cloud-containers">
+	        	<li class="button Google">
+	        		<div class="image"></div>
+	        	</li>
+	        	<li class="button Dropbox">
+	        		<div class="image"></div>
+	        	</li>
+	        	<li class="button OneDrive">
+	        		<div class="image"></div>
+	        	</li>
+	        </ul>
+	  </div>
+
+
+	<li class="button file-list-container-li" id="FileTemplate">
+		<div class="file-container">
+			<ul class="file-info">
+				<li class="file-name">testname.txt</li>
+				<li class="file-size">30 gb</li>
+				<li class="file-chunk">30</li>
+			</ul>
+		</div>
+	</li>
+
+	<script type="text/javascript" src="JS/condensationJS_Drive.js"></script>
+
+	<script type="text/javascript" src="JS/condensationJS.js"></script>
+</html>
