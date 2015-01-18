@@ -178,7 +178,7 @@ class Condense
     # For each hash, find the intersect between its chunks and this hash's chunks and accumulate
     other_shas = @config.db['fn2ref'].keys - [sha1]
     shared_chunks = other_shas.map do |sha|
-      @config.db['fn2ref'][sha1]['chunks'] & sha
+      @config.db['fn2ref'][sha1]['chunks'] & [sha]
     end.inject(:<<) || []
 
     to_delete = @config.db["fn2ref"][sha1]["chunks"] - shared_chunks
