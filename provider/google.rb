@@ -52,7 +52,7 @@ class GoogleService < Provider
     @client.authorization.redirect_uri = REDIRECT_URI
     @client.authorization.access_token = @access_token if @access_token
   end
-
+end
 #   def file_get fn
 #     create_client
 #     file_properties = json_file_data[fn]
