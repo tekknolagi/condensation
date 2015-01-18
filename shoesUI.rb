@@ -5,7 +5,6 @@ require './condense'
 
 app = Condense.new
 
-
 Shoes.app(title: "Condenser",
    width: 190, height: 600, resizable: false) {
 
@@ -19,7 +18,7 @@ Shoes.app(title: "Condenser",
     @download = button "      Download      "
     @delete = button   "       Delete       "
 
-    @Google = button   " Add Google Account "
+    @Box = button   "   Add Box Account  "
     @Dropbox = button  "Add Dropbox Account "
     @OneDrive = button "Add OneDrive Account"
 
@@ -108,16 +107,16 @@ Shoes.app(title: "Condenser",
 
 
 
-  @Google.click {
-    app.configure Google
+  @Box.click {
+    app.configure box
   }
 
   @Dropbox.click {
-    app.configure Dropbox
+    app.configure dropbox
   }
 
   @OneDrive.click {
-    app.configure OneDrive
+    app.configure onedrive
   }
 
   def print_current_size amount_free
