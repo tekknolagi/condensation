@@ -28,9 +28,13 @@ class GoogleService < Provider
     @client.authorization.code = gets.chomp
     @client.authorization.fetch_access_token!
 
+
+    
+
     # At this point I believe the client is all set up (authenticated and whatnot)
-    # To do is still: Figure out how we can avoid doing all this all over each time app.rb is run
-  end
+    # To do is still: Figure out how we can avoid doing all this all over each time app.rb is run => The web based version of this (JS gapi) uses cookies; that part of the api is not open to devs
+    # I imagine they did not intend for their apis to be used in a local system like this; increasingly I think this is a hole in the API
+  end 
 
   def create_client
     # Create a new API client & load the Google Drive API
