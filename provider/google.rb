@@ -29,11 +29,12 @@ class GoogleService < Provider
   # There are some issues with trying to split this up into a proper client-server for client auth
   # See this: https://developers.google.com/drive/web/quickstart/quickstart-ruby
   def get_token
+    puts "1"
     log_file = File.open('drive.log', 'a+')
     log_file.sync = true
     logger = Logger.new(log_file)
     logger.level = Logger::DEBUG
-
+    puts "2"
     create_client
 
     # FileStorage stores auth credentials in a file, so they survive multiple runs
@@ -42,6 +43,7 @@ class GoogleService < Provider
     # Note: FileStorage is not suitable for multi-user applications.
     file_storage = Google::APIClient::FileStorage.new(CREDENTIAL_STORE_FILE)
     if file_storage.authorization.nil?
+        puts "3"
       # The InstalledAppFlow is a helper class to handle the OAuth 2.0 installed
       # application flow, which ties in with FileStorage to store credentials
       # between runs.
@@ -54,41 +56,46 @@ class GoogleService < Provider
     else
       @client.authorization = file_storage.authorization
     end
-
+  puts "4"
     drive = nil
     # Load cached discovered API, if it exists. This prevents retrieving the
     # discovery document on every run, saving a round-trip to API servers.
     if File.exists? CACHED_API_FILE
       File.open(CACHED_API_FILE) do |file|
         drive = Marshal.load(file)
+          puts "5"
       end
     else
       drive = @client.discovered_api('drive', API_VERSION)
       File.open(CACHED_API_FILE, 'w') do |file|
         Marshal.dump(drive, file)
+          puts "6"
       end
     end
-
+      puts "7"
     return client, drive
   end 
 
   def create_client
+      puts "2.1"
+
     # Create a new API client & load the Google Drive API
     @client = Google::APIClient.new({ :application_name => 'Condensation', :application_version => '0.0.0' })
     @drive = @client.discovered_api('drive', 'v2')
-
+    puts "2.2"
     # POST request to auth server to get JSON of api keys
     secrets = Net::HTTP.get(URI.parse("#{AUTH_SERVER}/secrets"))
     api_secrets = JSON.parse(secrets)
     client_id = api_secrets['key']
     client_secret = api_secrets['secret']
-
+      puts "2.3"
     # Request authorization
     @client.authorization.client_id = client_id
     @client.authorization.client_secret = client_secret
     @client.authorization.scope = OAUTH_SCOPE
     @client.authorization.redirect_uri = REDIRECT_URI
     @client.authorization.access_token = @access_token if @access_token
+    puts "2.4"
   end
 end
 #   def file_get fn
