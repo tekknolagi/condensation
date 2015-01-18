@@ -13,3 +13,5 @@ end
 group :flickr do
   gem 'flickraw'
 end
+
+gem 'rake'
