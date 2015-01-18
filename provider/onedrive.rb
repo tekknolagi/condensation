@@ -1,4 +1,5 @@
 require 'net/http'
+require 'uri'
 require 'json'
 require 'launchy'
 
@@ -42,28 +43,38 @@ class OnedriveService < Provider
   end
 
   def file_put file
-    # downsize_photo_uploads prevents OneDrive from resizing images
-    response = Net::HTTP.put(URI("https://apis.live.net/v5.0/me/skydrive/files#{file.basename}"),
-      { 'access_token' => @access_token, 'downsize_photo_uploads' => 'false' },
-      file.read)
+    uri = URI("https://apis.live.net/v5.0/me/skydrive/files/#{File.basename file.path}")    
+    uri.query = URI.encode_www_form({ :access_token => @access_token['access_token'], :downsize_photo_uploads => 'false' })
+   
 
-    # Associate filename with its onedrive id
-    json_file_data[file.basename][:id] = response['id']
+    Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |https|
+      request = Net::HTTP::Put.new uri
+      request.body = file.read 
+      request['Content-Type'] = "" # This NEEDS to be empty or MS complains
 
-    response['id']
+      response = https.request request
+      parsed_json = JSON.parse response.body
+
+      puts @access_token['access_token']
+      puts response.body
+
+      return parsed_json['id']
+    end
   end
 
   def space_free
     uri = URI("https://apis.live.net/v5.0/me/skydrive/quota")
-    uri.query = URI.encode_www_form({ :access_token => @access_token })
+    uri.query = URI.encode_www_form({ :access_token => @access_token['access_token'] })
 
     Net::HTTP.start(uri.host, uri.port, :use_ssl => true) do |https|
       request = Net::HTTP::Get.new uri
       response = https.request request
-      puts JSON.parse response.body
+      quotas = JSON.parse response.body
+      return quotas['available'].to_f() / (1024**2)
     end
 
     # response = Net::HTTP.get(URI("https://apis.live.net/v5.0/me/skydrive/quota").to_s, { 'access_token' => @access_token })
-    # response['available'].to_f() / (1024**2) # Return available storage in megabytes
+    #response['available'].to_f() / (1024**2) # Return available storage in megabytes
+
   end
 end
