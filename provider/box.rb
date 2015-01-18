@@ -8,6 +8,10 @@ class BoxService < Provider
   AUTH_URL = 'http://condensation-auth.herokuapp.com/box'
   attr_accessor :access_token
 
+  def get_api_token code
+    JSON.parse Net::HTTP.post_form(URI("#{AUTH_URL}/api_token"), { :code => code }).body
+  end
+
   def get_token
     # Make GET to auth server/build_url
     authorize_url_json = Net::HTTP.post_form(URI("#{AUTH_URL}/build_url"), {})
@@ -24,5 +28,16 @@ class BoxService < Provider
     code = gets.strip.gsub("\"","")
 
     # Send code to Box for access_token
+    get_api_token code
+  end
+
+  def file_put
+    token = @access_token['access_token']
+  end
+
+  def file_get
+  end
+
+  def space_free
   end
 end
