@@ -51,77 +51,79 @@ class GoogleService < Provider
     @client.authorization.scope = OAUTH_SCOPE
     @client.authorization.redirect_uri = REDIRECT_URI
     @client.authorization.access_token = @access_token if @access_token
+
+    puts client.authorization.access_token
+  end
+
+  def file_get fn
+    create_client
+    file_properties = json_file_data[fn]
+    google_id = file_properties["id"]
+
+    #starts callback flow
+    result = @client.execute(
+      :api_method => @drive.files.get,
+      :parameters => { 'fileId' => file_id })
+    if result.status == 200
+      file = result.data
+      if file.download_url
+        result = @client.execute(:uri => file.download_url)
+        if result.status == 200
+          return result.body
+        else
+          puts "There was an error downloading the file from drive"
+          return false
+        end
+      else
+        puts "Error: File did not have downloadable content"
+        return false
+      end
+    else
+      puts "There was an error getting file from fileId, check file name again"
+      return false
+    end
+  end
+
+  def file_put file
+    create_client
+    drive = @client.discovered_api('drive', 'v2')
+    file = drive.files.insert.request_schema.new({
+      #metadata for later
+    })
+
+    # Set the parent folder.
+    if parent_id
+      file.parents = [{'id' => parent_id}]
+    end
+    media = Google::APIClient::UploadIO.new(file_name, "application/octet-stream")
+    result = @client.execute(
+      :api_method => drive.files.insert,
+      :body_object => file,
+      :media => media,
+      :parameters => {
+        'uploadType' => 'multipart',
+        'alt' => 'json'})
+    if result.status == 200
+      #Don't know if this will get the basename
+      json_file_data[file.basename][:id] = results.data.id
+      return true
+    else
+      puts "There was an error inserting your file to drive"
+      return false
+    end
+  end
+
+  def space_free
+    create_client
+    p @client
+    drive = @client.discovered_api('drive', 'v2')
+    result = @client.execute(:api_method => drive.about.get)
+    if result.status == 200
+      about = result.data
+      return about.quota_bytes_total - about.quota_bytes_used
+    else
+      puts "There was an error with getting the about info from drive"
+      return false
+    end
   end
 end
-#   def file_get fn
-#     create_client
-#     file_properties = json_file_data[fn]
-#     google_id = file_properties["id"]
-
-#     #starts callback flow
-#     result = @client.execute(
-#       :api_method => @drive.files.get,
-#       :parameters => { 'fileId' => file_id })
-#     if result.status == 200
-#       file = result.data
-#       if file.download_url
-#         result = @client.execute(:uri => file.download_url)
-#         if result.status == 200
-#           return result.body
-#         else
-#           puts "There was an error downloading the file from drive"
-#           return false
-#         end
-#       else
-#         puts "Error: File did not have downloadable content"
-#         return false
-#       end
-#     else
-#       puts "There was an error getting file from fileId, check file name again"
-#       return false
-#     end
-#   end
-
-#   def file_put file
-#     create_client
-#     drive = @client.discovered_api('drive', 'v2')
-#     file = drive.files.insert.request_schema.new({
-#       #metadata for later
-#     })
-
-#     # Set the parent folder.
-#     if parent_id
-#       file.parents = [{'id' => parent_id}]
-#     end
-#     media = Google::APIClient::UploadIO.new(file_name, "application/octet-stream")
-#     result = @client.execute(
-#       :api_method => drive.files.insert,
-#       :body_object => file,
-#       :media => media,
-#       :parameters => {
-#         'uploadType' => 'multipart',
-#         'alt' => 'json'})
-#     if result.status == 200
-#       #Don't know if this will get the basename
-#       json_file_data[file.basename][:id] = results.data.id
-#       return true
-#     else
-#       puts "There was an error inserting your file to drive"
-#       return false
-#     end
-#   end
-
-#   def space_free
-#     create_client
-#     p @client
-#     drive = @client.discovered_api('drive', 'v2')
-#     result = @client.execute(:api_method => drive.about.get)
-#     if result.status == 200
-#       about = result.data
-#       return about.quota_bytes_total - about.quota_bytes_used
-#     else
-#       puts "There was an error with getting the about info from drive"
-#       return false
-#     end
-#   end
-# end
