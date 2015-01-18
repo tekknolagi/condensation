@@ -5,7 +5,7 @@ Condensation allows for maximisation of cloud storage capabilities by combining 
 
 ##Getting started:
 
-Run `ruby app.rb --configure` to setup the `~/.condensation` directory and authorize the program to access your cloud accounts..
+Run `ruby app.rb --configure` for each service (Dropbox, OneDrive and Box), to setup the `~/.condensation` directory and authorize the program to access your cloud accounts.
 
 Finally, try uploading something with `ruby app.rb --upload <file>`!
 
@@ -32,4 +32,3 @@ In the initial configuration, Condensation will request access to your accounts 
 * Dropbox
 * Microsoft OneDrive
 * Box
-* Google Drive (not yet)
