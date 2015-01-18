@@ -28,7 +28,6 @@ class GoogleService < Provider
     @client.authorization.code = gets.chomp
     @client.authorization.fetch_access_token!
 
-    puts @client.authorization.code
     puts @client.authorization.fetch_access_token!
     puts "Did it work?"
 
@@ -53,6 +52,7 @@ class GoogleService < Provider
     @client.authorization.scope = OAUTH_SCOPE
     @client.authorization.redirect_uri = REDIRECT_URI
     @client.authorization.access_token = @access_token if @access_token
+    @client.authorization.approval_prompt = 'force'
 
     puts @client.authorization.access_token
   end
