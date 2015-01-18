@@ -102,11 +102,11 @@ class Condense
         File.unlink(chunk[:fn])
 
         # Store storage service and fid (if applicable) of each chunk
-        @config.db["chunk2ref"][chunk[:sha1]] = {
+        @config.db["chunk2ref"][chunk[:fn]] = {
           :service => most_filled_cloud[0],
           :id => fid
         }
-        shas.push chunk[:sha1]
+        shas.push chunk[:fn]
         counter += 1
       end
     end
@@ -148,11 +148,12 @@ class Condense
     file_chunks = record["chunks"] # file_chunks needs to sort the chunks by their names' last 5 digits
 
     # Assemble/concatenate chunks back together
-    File.open(File.expand_path fp, "w") do |f|
-      file_chunks.map do |chunk|
+    File.open(File.expand_path(fp), "w") do |f|
+      file_chunks.each do |chunk|
         name = @config.db["chunk2ref"][chunk]["service"]
         fid = @config.db["chunk2ref"][chunk]["id"]
-        f.write @service[name].file_get(filename, fid) # expects file_get to return plaintext file contents
+        puts fid
+        f.write @services[name].file_get(chunk, fid) # expects file_get to return plaintext file contents
       end
     end
   end
