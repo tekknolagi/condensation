@@ -71,6 +71,6 @@ class BoxService < Provider
         "Authorization" => "Bearer #{@access_token['access_token']}"
       })
     res = JSON.parse http.request(request).body
-    (res['space_amount']-res['space_used'])/(1024**3).to_f
+    (res['space_amount']-res['space_used'])/(1024**2).to_f
   end
 end
