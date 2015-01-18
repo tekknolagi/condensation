@@ -1,9 +1,9 @@
-require './file'
-require './config'
-require './provider'
-require './condense'
+#require './file'
+#require './config'
+#require './provider'
+#require './condense'
 
-app = Condense.new
+#pp = Condense.new
 
 Shoes.app(title: "Condenser",
    width: 190, height: 600, resizable: false) {
@@ -44,11 +44,13 @@ Shoes.app(title: "Condenser",
     }
 
   @list.click {
-    @fileList.replace " "
     file_list = app.file_list
+
     file_list.each do |file, ref|
-      @fileList.append "\n #{file}"
+      text = text + file + "\n"
     end
+
+    @fileList.replace text
   }
 
   @upload.click {
