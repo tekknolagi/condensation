@@ -152,6 +152,7 @@ class GoogleService < Provider
   end
 
   def file_del fn fid
+    puts "what"
   end
 
   def space_free
