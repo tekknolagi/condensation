@@ -15,9 +15,10 @@ class GoogleService < Provider
   # There are some issues with trying to split this up into a proper client-server for client auth
   # See this: https://developers.google.com/drive/web/quickstart/quickstart-ruby
   def get_token
+    puts "1"
     create_client
     authorize_url = @client.authorization.authorization_uri
-
+    puts "2"
     # Have the user sign in and authorize this app
     Launchy.open(authorize_url)
     puts 'Please authorise Condensation for your Google account:'
@@ -27,9 +28,55 @@ class GoogleService < Provider
     print 'Enter the authorization code here: '
     @client.authorization.code = gets.chomp
     @client.authorization.fetch_access_token!
+    puts "3"
+    # Preload API definitions
+    client = Google::APIClient.new
+    set :drive, client.discovered_api('drive', 'v2')
+    set :oauth2, client.discovered_api('oauth2', 'v2')
+    puts "4"
+    ##
+    # Exchanges the authorization code to fetch an access
+    # and refresh token. Stores the retrieved tokens in the session.
+    def authorize_code(code)
+      puts "8"
+      api_client.authorization.code = code
+      api_client.authorization.fetch_access_token!
+      # put the tokens in the session
+      puts "9"
+      session[:access_token] = api_client.authorization.access_token
+      session[:refresh_token] = api_client.authorization.refresh_token
+      session[:expires_in] = api_client.authorization.expires_in
+      session[:issued_at] = api_client.authorization.issued_at
+      puts "10"
+    end
 
+    puts "5"
+       # Make sure access token is up to date for each request
+      api_client.authorization.update_token!(session)
 
-    
+      # if existing access token is expired and refresh token is set,
+      # ask for a new access token.
+      if api_client.authorization.refresh_token &&
+        api_client.authorization.expired?
+        api_client.authorization.fetch_access_token!
+      end
+
+      puts "6"
+
+      get '/' do
+        puts "7"
+        # handle possible callback from OAuth2 consent page.
+        if params[:code]
+          authorize_code(params[:code])
+          redirect '/'
+          puts "IT WORKED"
+        elsif params[:error] # User denied the oauth grant
+          halt 403
+          puts "IT FAILED"
+        end
+
+        redirect api_client.authorization.authorization_uri.to_s unless authorized?
+      end
 
     # At this point I believe the client is all set up (authenticated and whatnot)
     # To do is still: Figure out how we can avoid doing all this all over each time app.rb is run => The web based version of this (JS gapi) uses cookies; that part of the api is not open to devs
