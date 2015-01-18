@@ -28,9 +28,12 @@ class GoogleService < Provider
     @client.authorization.code = gets.chomp
     @client.authorization.fetch_access_token!
 
+    #Apparently fetch IS the reset token (?!); make sure we store it properly
+
     puts @client.authorization.fetch_access_token!
     puts "Did it work?"
 
+    @client.authorization.fetch_access_token!
     # At this point I believe the client is all set up (authenticated and whatnot)
     # To do is still: Figure out how we can avoid doing all this all over each time app.rb is run
   end
@@ -96,10 +99,6 @@ class GoogleService < Provider
       #metadata for later
     })
 
-    # Set the parent folder.
-    if parent_id
-      file.parents = [{'id' => parent_id}]
-    end
     media = Google::APIClient::UploadIO.new(file_name, "application/octet-stream")
     result = @client.execute(
       :api_method => drive.files.insert,
@@ -109,9 +108,7 @@ class GoogleService < Provider
         'uploadType' => 'multipart',
         'alt' => 'json'})
     if result.status == 200
-      #Don't know if this will get the basename
-      json_file_data[file.basename][:id] = results.data.id
-      return true
+      return results.data.id
     else
       puts "There was an error inserting your file to drive"
       return false

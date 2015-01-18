@@ -14,6 +14,8 @@ Shoes.app(title: "Condenser",
     @note = para "Hello"
     @upload = button "       Upload       "
     @download = button "      Download      "
+    @delete = button "       Delete       "
+
     @Google = button "Add Google Account  "
     @Dropbox = button "Add Dropbox Account "
     @OneDrive = button "Add OneDrive Account"
@@ -44,6 +46,16 @@ Shoes.app(title: "Condenser",
     end
 
     app.file_get filename
+  }
+
+  @delete.click {
+    filename = ask("Please Enter a File Name to Delete")
+    if not filename
+      @note.replace "There is no file name listed"
+      return
+    end
+
+    app.file_del filename
   }
 
   @Google.click {

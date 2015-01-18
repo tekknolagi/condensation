@@ -50,7 +50,8 @@ class BoxService < Provider
     #res = JSON.parse http.request(req).body
   end
 
-  def file_get
+  def file_get fid
+    
   end
 
   def file_del fn, fid
