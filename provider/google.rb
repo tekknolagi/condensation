@@ -16,7 +16,7 @@ class GoogleService < Provider
   # See this: https://developers.google.com/drive/web/quickstart/quickstart-ruby
   def get_token
     create_client
-    authorize_url = @client.authorization.authorization_uri
+    authorize_url = build_auth_uri
 
     # Have the user sign in and authorize this app
     Launchy.open(authorize_url)
@@ -33,6 +33,12 @@ class GoogleService < Provider
 
     # At this point I believe the client is all set up (authenticated and whatnot)
     # To do is still: Figure out how we can avoid doing all this all over each time app.rb is run
+  end
+
+  def build_auth_uri
+    return @client.authorization.authorization_uri(
+     :approval_prompt => :auto
+    ).to_s      
   end
 
   def create_client
@@ -52,9 +58,6 @@ class GoogleService < Provider
     @client.authorization.scope = OAUTH_SCOPE
     @client.authorization.redirect_uri = REDIRECT_URI
     @client.authorization.access_token = @access_token if @access_token
-    @client.authorization.approval_prompt = 'force'
-
-    puts @client.authorization.access_token
   end
 
   def file_get fn
