@@ -38,13 +38,16 @@ class BoxService < Provider
     fn = File.basename file.path
     token = @access_token['access_token']
     url = 'https://upload.box.com/api/2.0/files/content'
-    `curl -v -H 'Authorization: Bearer #{token}' -H 'Transfer-Encoding: chunked' -H 'Content-Length: #{file.size}' -F "filename=@#{file.path}" -F "folder_id=0" #{url}`
+    resp = `curl -s -H 'Authorization: Bearer #{token}' -H 'Transfer-Encoding: chunked' -H 'Content-Length: #{file.size}' -F "filename=@#{file.path}" -F "folder_id=0" #{url}`
+    json = JSON.parse resp
+    puts json['entries'][0]['sha1']
+    json['entries'][0]['id']
   end
 
-  def file_get fid
+  def file_get fn, fid
     token = @access_token['access_token']
-    url = "https://upload.box.com/api/2.0/files/#{fid}/content"
-    `curl -v -H 'Authorization: Bearer #{token}' #{url}`
+    url = "https://api.box.com/2.0/files/#{fid}/content"
+    `curl -L -X GET -H 'Authorization: Bearer #{token}' #{url}`
   end
 
   def file_del fn, fid
