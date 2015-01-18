@@ -45,8 +45,13 @@ class Condense
     @config.db["fn2ref"].to_json
   end
 
-  def hash2fn sha1
-    @config.db["fn2ref"][sha1]["fn"]
+  def fn2hash fn
+    shas = @config.db["fn2ref"].keys
+    shas.each do |sha|
+      if @config.db["fn2ref"][sha]["fn"] == fn.split('/').join('!')
+        return sha
+      end
+    end
   end
 
   #get_clouds returns a list of clouds that are currently connected to the users files

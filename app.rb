@@ -41,7 +41,7 @@ OptionParser.new do |opts|
   end
 
   opts.on("-S", "--SHA FILENAME", "Retrieve the database SHA-1 hash for FILENAME") do |args|
-    puts app.hash2fn args
+    puts app.fn2hash args
   end
 
   begin
