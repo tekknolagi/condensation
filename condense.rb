@@ -72,13 +72,13 @@ class Condense
   def file_put fn
     prefix = Digest::SHA1.hexdigest(File.open(fn, "rb").read)
 
-    if @config.db["fn2ref"].has_key? prefix
-      puts "There was an error: this file name already exists"
+    if File.zero? fn
+      puts "There was an error: the fn returned an empty file"
       return false
     end
 
-    if File.zero? fn
-      puts "There was an error: the fn returned an empty file"
+    if @config.db["fn2ref"].has_key? prefix # hash is in database - identical file exists in cloud
+      puts "There was an error: this file already exists, or has an identical version uploaded"
       return false
     end
 

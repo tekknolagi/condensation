@@ -20,8 +20,10 @@ OptionParser.new do |opts|
     puts app.file_list
   end
 
-  opts.on("-u", "--upload FILEPATH", "Uploads the file at FILEPATH") do |args|
-    app.file_put args
+  opts.on("-u", "--upload [FILEPATH]", "Uploads the file at FILEPATH") do |args|
+    if app.file_put args
+      puts "Upload complete."
+    end
   end
 
   opts.on("-s", "--space [SERVICE]", "Get the amount of free space from a provider(s)") do |svc|
@@ -32,15 +34,15 @@ OptionParser.new do |opts|
     end
   end
 
-  opts.on("-d", "--download FILEHASH", "Downloads the file with hash FILEHASH") do |args|
+  opts.on("-d", "--download [HASH]", "Downloads the file with SHA-1 hash HASH") do |args|
     puts app.file_get args
   end
 
-  opts.on("-x", "--delete FILEHASH", "Deletes the file with hash FILEHASH") do |args|
+  opts.on("-x", "--delete [HASH]", "Deletes the file with SHA-1 hash HASH") do |args|
     puts app.file_del args
   end
 
-  opts.on("-S", "--SHA FILENAME", "Retrieve the database SHA-1 hash for FILENAME") do |args|
+  opts.on("-S", "--SHA [FILENAME]", "Retrieve the database SHA-1 hash for FILENAME") do |args|
     puts app.fn2hash args
   end
 
