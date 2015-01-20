@@ -3,19 +3,12 @@ require './config'
 require './provider'
 require 'digest/sha1'
 require 'rake/pathmap'
-
 require 'json'
-
-
-#Do we want to create a 'master Hash' that loads on start up and basically puts all of the data from the json hash database into the app at the start?
-#OR
-#Do we want to constantly query the json database itself?
-#
-#That will affect how we write to JSON; I'm assuming we do the first, and edit a global hash called json_file_data that writes to a file when things change in it
 
 class Condense
   attr_accessor :config
   attr_accessor :services
+  CHUNK_SIZE = 1024**2 # 1 MB
 
   def initialize
     @config = Konfig.new
@@ -31,11 +24,11 @@ class Condense
     @config.write
   end
 
-  def configure svc
-    if svc
-      @config.keys[svc] = @services[svc].get_token
+  def configure service
+    if service
+      @config.keys[service] = @services[service].get_token
     else
-      @services.each do |svc, obj|
+      @services.each do |svc, obj| # svc was shadowed earlier, method param renamed to 'service'
         @config.keys[svc] = obj.get_token if @config.keys[svc] == {}
       end
     end
@@ -43,7 +36,7 @@ class Condense
 
   def file_list
     @config.db["fn2ref"].map do |sha, ref|
-      print "#{ref['fn']}: "
+      print "#{ref['fn'].split('!').join('/')}: "
       ref['chunks'].map do |chunk|
         print "#{chunk}(#{@config.db['chunk2ref'][chunk]['service']})"
       end
@@ -98,20 +91,25 @@ class Condense
     continuing = true
     while (most_filled_cloud = get_most_filled_cloud(file_size)) && continuing
       counter = 0
-      while counter * 1024**2 < most_filled_cloud[1]
-        chunk = file.make_chunk(prefix, 1024**2)
+      while counter * CHUNK_SIZE < most_filled_cloud[1]
+        chunk = file.make_chunk(prefix, CHUNK_SIZE)
         if not chunk
           continuing = false
           break
         end
-        fid = @services[most_filled_cloud[0]].file_put File.open(chunk[:fn], 'rb') # file_put returns file id
-        File.unlink(chunk[:fn])
+        
+        if not @config.db["chunk2ref"].has_key? chunk[:sha1] # If this chunk doesn't already exist, upload it
+          fid = @services[most_filled_cloud[0]].file_put File.open(chunk[:fn], 'rb')
+          File.unlink(chunk[:fn])
 
-        # Store storage service and fid (if applicable) of each chunk
-        @config.db["chunk2ref"][chunk[:fn]] = {
-          :service => most_filled_cloud[0],
-          :id => fid
-        }
+          # Store storage service and fid (if applicable) of each chunk
+          # Keep track of each chunk by its hash
+          @config.db["chunk2ref"][chunk[:sha1]] = {
+            :service => most_filled_cloud[0],
+            :id => fid
+          }
+        end
+
         shas.push chunk[:fn]
         counter += 1
       end
@@ -125,7 +123,8 @@ class Condense
     true
   end
 
-  #Handler for downloading files. Returns true if the file download worked, false if it failed any point along the way.
+  # Handler for downloading files. Returns true if the file download worked, false if it failed any point along the way.
+  # NOTE: This seems to have been deprecated during development, and should probably be removed - Arun
   def file_write file
     filename = File.basename File.path file
     File.open(filename, "w") do |f|
@@ -184,14 +183,16 @@ class Condense
     to_delete = @config.db["fn2ref"][sha1]["chunks"] - shared_chunks
 
     # Map over array of chunks to delete in the cloud
+    # Also delete them from chunk2ref
     to_delete.map do |chunk|
       name = @config.db['chunk2ref'][chunk]['service']
       # chunk is filename, also pass chunk's id
       @services[name].file_del(chunk, @config.db['chunk2ref'][chunk]['id'])
+      @config.db['chunk2ref'].delete chunk # this chunk no longer exists in the cloud
     end
 
     # Delete sha1 entry in db
-    @config.db['fn2ref'].delete sha1    
+    @config.db['fn2ref'].delete sha1 
   end 
 
 
