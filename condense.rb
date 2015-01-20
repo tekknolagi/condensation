@@ -51,6 +51,7 @@ class Condense
         return sha
       end
     end
+    return "Hash not found."
   end
 
   #get_clouds returns a list of clouds that are currently connected to the users files
@@ -160,6 +161,8 @@ class Condense
         f.write @services[name].file_get(chunk, fid) # expects file_get to return plaintext file contents
       end
     end
+
+    return true
   end
 
   def file_del sha1
@@ -193,6 +196,8 @@ class Condense
 
     # Delete sha1 entry in db
     @config.db['fn2ref'].delete sha1 
+
+    return true
   end 
 
 

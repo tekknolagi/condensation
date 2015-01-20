@@ -23,6 +23,8 @@ OptionParser.new do |opts|
   opts.on("-u", "--upload [FILEPATH]", "Uploads the file at FILEPATH") do |args|
     if app.file_put args
       puts "Upload complete."
+    else
+      puts "Upload failed."
     end
   end
 
@@ -35,15 +37,27 @@ OptionParser.new do |opts|
   end
 
   opts.on("-d", "--download [HASH]", "Downloads the file with SHA-1 hash HASH") do |args|
-    puts app.file_get args
+    if app.file_get args
+      puts "Download complete."
+    else
+      puts "Download failed"
+    end
   end
 
   opts.on("-x", "--delete [HASH]", "Deletes the file with SHA-1 hash HASH") do |args|
-    puts app.file_del args
+    if app.file_del args
+      puts "Successful delete"
+    else
+      puts "Delete failed"
+    end
   end
 
   opts.on("-S", "--SHA [FILENAME]", "Retrieve the database SHA-1 hash for FILENAME") do |args|
-    puts app.fn2hash args
+    if not args
+      puts "Please provide a filename."
+    else
+      puts app.fn2hash args
+    end
   end
 
   begin
