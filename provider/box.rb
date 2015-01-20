@@ -35,7 +35,7 @@ class BoxService < Provider
   end
 
   def file_put file
-    fn = File.basename file.path
+#    fn = File.basename file.path
     token = @access_token['access_token']
     url = 'https://upload.box.com/api/2.0/files/content'
     resp = `curl -s -H 'Authorization: Bearer #{token}' -H 'Transfer-Encoding: chunked' -H 'Content-Length: #{file.size}' -F "filename=@#{file.path}" -F "folder_id=0" #{url}`
