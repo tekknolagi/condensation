@@ -151,7 +151,7 @@ class Condense
     rel_path = record["fn"].split('!').join('/')
     fp = rel_path.pathmap "%X-#{rand 99}%x"
 
-    file_chunks = record["chunks"] # file_chunks needs to sort the chunks by their names' last 5 digits
+    file_chunks = record["chunks"]
 
     # Assemble/concatenate chunks back together
     File.open(File.expand_path(fp), "w") do |f|
