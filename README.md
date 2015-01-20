@@ -3,6 +3,8 @@ Condensation
 
 Condensation allows for maximisation of cloud storage capabilities by combining several popular cloud storage platforms, with the ability to distribute large files across platforms when needed.
 
+Note: This app is still under development, so frequent changes can happen often - **including changes to the database schemae**. If you `pull`, you may need to delete the databases (`rm ~/.condensation/db.json`), manually delete all condensation-related files in your clouds, and re-upload them. Check commit messages!
+
 ##Getting started:
 
 First, install dependencies with `bundle install`. Install Ruby Shoes from [http://shoesrb.com/downloads/](their downloads page) if you want to run a UI.
