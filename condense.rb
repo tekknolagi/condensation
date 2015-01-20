@@ -98,13 +98,13 @@ class Condense
           break
         end
         
-        if not @config.db["chunk2ref"].has_key? chunk[:sha1] # If this chunk doesn't already exist, upload it
+        if not @config.db["chunk2ref"].has_key? chunk[:fn] # If this chunk doesn't already exist, upload it
           fid = @services[most_filled_cloud[0]].file_put File.open(chunk[:fn], 'rb')
           File.unlink(chunk[:fn])
 
           # Store storage service and fid (if applicable) of each chunk
           # Keep track of each chunk by its hash
-          @config.db["chunk2ref"][chunk[:sha1]] = {
+          @config.db["chunk2ref"][chunk[:fn]] = {
             :service => most_filled_cloud[0],
             :id => fid
           }

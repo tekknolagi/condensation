@@ -7,14 +7,13 @@ class File
       return nil
     end
 
-    sha1 = Digest::SHA1.hexdigest blob
 #    fn = "#{prefix}_%05d" % (pos/size.to_f).to_i
-    fn = sha1 # make fn the chunk hash
+    fn = Digest::SHA1.hexdigest blob # make fn the chunk hash
 
     File.open(fn, 'w') do |f|
       f.write blob
     end
 
-    return { :fn => fn, :blob => blob, :sha1 => sha1 } #unless eof?
+    return { :fn => fn, :blob => blob} #unless eof?
   end
 end
