@@ -12,7 +12,7 @@ OptionParser.new do |opts|
   opts.separator "This will parse commands to be used by Condensation"
   opts.version = "0.0.0"
 
-  opts.on("-c", "--configure [SERVICE]", "Sign into your services (dropbox | onedrive | box | google)") do |svc|
+  opts.on("-c", "--configure [SERVICE]", "Sign into your services (dropbox | onedrive | box)") do |svc|
     app.configure svc
   end
 
