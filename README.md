@@ -10,7 +10,7 @@ Note: This app is still under development, so frequent changes can happen often 
 Runs on: Ruby 2.2.0, Unix-like OSes (e.g. Linux, Mac OS X [with command-line tools installed], etc)
 
 ####Installing RVM
-Install the RVM (Ruby Virtual Machine) first:
+Install the RVM (Ruby Version Manager) first:
   * `gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3`
   * `\curl -sSL https://get.rvm.io | bash -s stable --ruby=2.2.0`
 
