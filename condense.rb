@@ -8,13 +8,22 @@ require 'json'
 class Condense
   attr_accessor :config
   attr_accessor :services
-  CHUNK_SIZE = 1024**2 # 1 MB
+#CHUNK_SIZE = 1024**2 # 1 MB
+  CHUNK_SIZE = 1024**3 # 1 GB
 
   def initialize
     @config = Konfig.new
-    @services = @config.keys.map do |key, val|
-      [key, Object.const_get("#{key.capitalize}Service").new]
-    end.to_h
+
+    @services = {}
+
+    @config.keys.each do |key, val|
+      if val.has_key?("access_token")
+        @services[key] = Object.const_get("#{key.capitalize}Service").new
+      end
+    end
+
+    puts @services
+
     @services.map do |svc, obj|
       obj.access_token = @config.keys[svc]
     end
@@ -56,9 +65,13 @@ class Condense
 
   #get_clouds returns a list of clouds that are currently connected to the users files
   def get_clouds
+    clouds = []
     @config.keys.map do |key, val|
-      key
+      if val.has_key?("access_token")
+        clouds.push(key)
+      end
     end
+    clouds
   end
 
   #Handler for uploading files. Returns true if the file upload worked, false if it failed at any point along the way.
