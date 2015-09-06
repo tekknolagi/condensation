@@ -8,8 +8,7 @@ require 'json'
 class Condense
   attr_accessor :config
   attr_accessor :services
-#CHUNK_SIZE = 1024**2 # 1 MB
-  CHUNK_SIZE = 1024**3 # 1 GB
+  CHUNK_SIZE = 1024**2 # 1 MB
 
   def initialize
     @config = Konfig.new
@@ -17,12 +16,8 @@ class Condense
     @services = {}
 
     @config.keys.each do |key, val|
-      if val.has_key?("access_token")
-        @services[key] = Object.const_get("#{key.capitalize}Service").new
-      end
+      @services[key] = Object.const_get("#{key.capitalize}Service").new
     end
-
-    puts @services
 
     @services.map do |svc, obj|
       obj.access_token = @config.keys[svc]

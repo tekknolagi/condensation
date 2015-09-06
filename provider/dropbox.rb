@@ -55,13 +55,19 @@ class DropboxService < Provider
   end
 
   def space_free
-    client = DropboxClient.new @access_token
-    account_parsed = client.account_info
-    quota_info = account_parsed['quota_info']
+    bytes_free = -1
+    begin
+      client = DropboxClient.new @access_token
+      account_parsed = client.account_info
+      quota_info = account_parsed['quota_info']
 
-    # Assuming this adds up to total storage used by the user
-    used_storage = quota_info['normal'].to_i + quota_info['shared'].to_i
-    bytes_free = quota_info['quota'].to_i - used_storage
+      # Assuming this adds up to total storage used by the user
+      used_storage = quota_info['normal'].to_i + quota_info['shared'].to_i
+      bytes_free = quota_info['quota'].to_i - used_storage
+    rescue Exception # usually happens when access_token isn't valid, we return -1
+      puts "Dropbox access token invalid!"
+    end
+    
     bytes_free / 1048576.0 # return megabytes free (1024*1024)
   end
 end
