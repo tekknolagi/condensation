@@ -201,10 +201,14 @@ class Condense
   end 
 
 
-  #returns a list of free data (value) per cloud (key)
+  #returns a list of free data in bytes (value) per cloud (key)
   def get_cloud_usage
     @config.keys.keys.map do |key|
-      [key, @services[key].space_free]
+      if @config.keys[key].has_key?("access_token")
+        [key, @services[key].space_free]
+      else
+        [key, -1] # This service was not configured
+      end
     end.to_h
   end
 
